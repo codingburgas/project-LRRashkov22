@@ -96,5 +96,68 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "GetCategory",
+    "RelativePath": "api/categories",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "CreateCategory",
+    "RelativePath": "api/categories",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Personal_Finance_Tracker.Models.CategoryDto.CreateCategoryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "UpdateCategory",
+    "RelativePath": "api/categories/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "Personal_Finance_Tracker.Models.CategoryDto.CategoryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "DeleteCategory",
+    "RelativePath": "api/categories/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

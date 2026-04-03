@@ -1,7 +1,7 @@
 ﻿using Personal_Finance_Tracker.Models;
 using Personal_Finance_Tracker.Models.UserDto;
 using System.Threading.Tasks;
-namespace Personal_Finance_Tracker.Services
+namespace Personal_Finance_Tracker.Services.Auth
 {
     public interface IAuthService
     {

@@ -6,9 +6,9 @@ using System.Text;
 using Personal_Finance_Tracker.Models;
 using Personal_Finance_Tracker.Models.UserDto;
 using Microsoft.AspNetCore.Identity;
-using Personal_Finance_Tracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
+using Personal_Finance_Tracker.Services.Auth;
 namespace Personal_Finance_Tracker.Controller;
 
 [Route("api/[controller]")]

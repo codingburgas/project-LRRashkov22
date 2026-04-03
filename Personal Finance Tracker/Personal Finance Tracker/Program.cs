@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Personal_Finance_Tracker.Data;
 using Personal_Finance_Tracker.Models;
-using Personal_Finance_Tracker.Services;
+using Personal_Finance_Tracker.Services.Auth;
+using Personal_Finance_Tracker.Services.CategoryService;
 using Scalar.AspNetCore;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -37,6 +38,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 //----------------------------------------------------------------------
 builder.Services.AddCors(options =>
 {

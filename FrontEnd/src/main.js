@@ -1,76 +1,181 @@
-import './style.css'
-
-
 const API_URL = "https://localhost:7095/api/Auth";
 
-window.login = async function () {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+// ---------- HELPERS ----------
 
-  const res = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username,
-      password
-    })
-  });
+function parseJwt(token) {
+    try {
+        const payload = token.split('.')[1];
+        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(decodeURIComponent(Array.prototype.map.call(decoded, c => {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join('')));
+    } catch {
+        return null;
+    }
+}
 
-  if (res.ok) {
-    const data = await res.json();
+function getToken() {
+    return localStorage.getItem("token");
+}
 
-localStorage.setItem("token", data.accessToken);
+function getTokenExpiry(token) {
+    const claims = parseJwt(token);
+    if (!claims || !claims.exp) return null;
+    return new Date(claims.exp * 1000);
+}
+
+function isTokenExpired(token) {
+    const expiry = getTokenExpiry(token);
+    if (!expiry) return true;
+    return Date.now() >= expiry.getTime();
+}
+
+function getRole() {
+    return localStorage.getItem("role");
+}
+
+function setMessage(text, isError = true) {
+    const message = document.getElementById("message");
+    if (!message) return;
+    message.innerText = text;
+    message.className = isError ? "text-danger text-center" : "text-success text-center";
+}
+
+function saveAuth(data) {
+    const token = data.accessToken;
+    const payload = parseJwt(token) || {};
+
+    const role =
+        payload.role ||
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/roles"];
+
+    const userId =
+        payload.nameid ||
+        payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+        payload.sub;
 
     localStorage.setItem("token", token);
+    localStorage.setItem("role", role || "User");
+    localStorage.setItem("userId", userId || "");
+}
 
-    console.log("TOKEN:", token);
+function logout() {
+    localStorage.clear();
+    window.location.href = "index.html";
+}
 
-    document.getElementById("message").innerText = "Logged in!";
-  } else {
-    document.getElementById("message").innerText = "Login failed";
-  }
-};
+window.logout = logout;
 
-window.testAuth = async function () {
-  const token = localStorage.getItem("token");
+function showLoginForm() {
+    const loginPanel = document.getElementById("login-form");
+    const regPanel = document.getElementById("register-form");
+    if (!loginPanel || !regPanel) return;
+    loginPanel.classList.remove("d-none");
+    regPanel.classList.add("d-none");
+    setMessage("");
+}
 
-  const res = await fetch("https://localhost:7095/api/Auth", {
-    headers: {
-      "Authorization": `Bearer ${token}`
+function showRegisterForm() {
+    const loginPanel = document.getElementById("login-form");
+    const regPanel = document.getElementById("register-form");
+    if (!loginPanel || !regPanel) return;
+    loginPanel.classList.add("d-none");
+    regPanel.classList.remove("d-none");
+    setMessage("");
+}
+
+window.registerUser = async function () {
+    const username = document.getElementById("reg-username")?.value?.trim();
+    const password = document.getElementById("reg-password")?.value || "";
+
+    if (!username || !password) {
+        setMessage("Please provide username and password.");
+        return;
     }
-  });
 
-  const text = await res.text();
-  console.log(text);
+    const res = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    });
+
+    if (res.ok) {
+        setMessage("Registered successfully. Please login.", false);
+        showLoginForm();
+    } else {
+        const err = await res.text();
+        setMessage(err || "Registration failed.");
+    }
 };
-
-
 
 window.login = async function () {
-  const res = await fetch("https://localhost:7095/api/Auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username: username.value,
-      password: password.value
-    })
-  });
+    const username = document.getElementById("username")?.value?.trim();
+    const password = document.getElementById("password")?.value || "";
 
-  const messageEl = document.getElementById("message");
+    if (!username || !password) {
+        setMessage("Please enter username and password.");
+        return;
+    }
 
-  if (res.ok) {
-    const data = await res.json();
-    localStorage.setItem("token", data.accessToken);
+    const res = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    });
 
-    messageEl.innerText = "Login successful";
-  } else {
-    const errorText = await res.text();
+    if (res.ok) {
+        const data = await res.json();
+        saveAuth(data);
 
-    messageEl.innerText = `${errorText}`;
-    console.log("STATUS:", res.status);
-  }
+        setMessage("Login successful.", false);
+
+        const role = (getRole() || "").trim().toLowerCase();
+        console.log("Logged user role:", role);
+
+        if (role === "admin") {
+            window.location.replace("/src/admin.html");
+            return;
+        }
+
+        window.location.replace("/src/dashboard.html");
+    } else {
+        const err = await res.text();
+        setMessage(err || "Login failed.");
+    }
+};
+
+// ---------- GUARDS ----------
+
+window.requireAuth = function () {
+    const token = getToken();
+    if (!token || isTokenExpired(token)) {
+        window.location.replace("/src/index.html");
+        return;
+    }
+};
+
+window.requireAdmin = function () {
+    const token = getToken();
+    if (!token || isTokenExpired(token)) {
+        logout();
+        return;
+    }
+    const role = getRole();
+    if (role !== "Admin") {
+        alert("Admin only");
+        window.location.href = "./src/dashboard.html";
+    }
+};
+
+window.requireUserOrAdmin = function () {
+    const token = getToken();
+    if (!token || isTokenExpired(token)) {
+        logout();
+        return;
+    }
+    const role = getRole();
+    if (!role) {
+        logout();
+    }
 };

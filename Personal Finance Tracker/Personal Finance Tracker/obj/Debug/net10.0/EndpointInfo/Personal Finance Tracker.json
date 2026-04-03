@@ -183,10 +183,191 @@
           }
         }
       }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/{id}": {
+      "put": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CategoryContorller"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Card": {
+        "required": [
+          "cardNumber",
+          "cardHolderName",
+          "expiryDate",
+          "cvv"
+        ],
+        "type": "object",
+        "properties": {
+          "cardNumber": {
+            "maxLength": 16,
+            "minLength": 16,
+            "type": "string"
+          },
+          "cardHolderName": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cvv": {
+            "maxLength": 3,
+            "minLength": 3,
+            "type": "string"
+          },
+          "balance": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "userId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transaction"
+            }
+          },
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "Category": {
         "type": "object",
         "properties": {
@@ -200,9 +381,6 @@
               "string"
             ],
             "format": "double"
-          },
-          "isGlobal": {
-            "type": "boolean"
           },
           "userId": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -240,6 +418,46 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "CategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "budgetLimit": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "budgetLimit": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
           }
         }
       },
@@ -337,6 +555,12 @@
             ],
             "format": "int32"
           },
+          "cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Card"
+            }
+          },
           "id": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
@@ -367,6 +591,9 @@
   "tags": [
     {
       "name": "Auth"
+    },
+    {
+      "name": "CategoryContorller"
     }
   ]
 }

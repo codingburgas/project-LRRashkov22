@@ -10,8 +10,6 @@ public class User : BaseEntity
     [RegularExpression(@"^[a-zA-Z]$",
          ErrorMessage = "Characters are not allowed.")]
     public string Username { get; set; } = string.Empty;
-
-
     [Required]
     [Length(8, 30)]
     public string PasswordHash { get; set; } = string.Empty;
@@ -23,6 +21,7 @@ public class User : BaseEntity
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     public DateTime? LockEnd { get; set; }
     public int? FailedAttempts { get; set; } = 0;
+    public ICollection<Card> Cards { get; set; } = new List<Card>();
 
 }
 

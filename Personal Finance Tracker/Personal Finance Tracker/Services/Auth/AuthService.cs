@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-namespace Personal_Finance_Tracker.Services;
+namespace Personal_Finance_Tracker.Services.Auth;
 
 
 public class AuthService(UserDbContext context, IConfiguration configuration) : IAuthService
@@ -24,7 +24,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         if (request.Username.Length > 20) return (null, "Username must be maximum 20 characters long");
         if (string.IsNullOrEmpty(request.Username)) return (null, "Username cannot be empty");
         if (request.Username.Any(ch => !char.IsLetterOrDigit(ch))) return (null, "Username cannot contain special symbols");
-
+        if (request.Username.Any(ch => char.IsDigit(ch))) return (null, "Username cannot contain digits");
         //Password tests
         if (string.IsNullOrEmpty(request.Password)) return (null, "Password cannot be empty");
         if (request.Password.Length < 8) return (null, "Password must be at least 8 characters long");
