@@ -5,7 +5,7 @@ namespace Personal_Finance_Tracker.Services.CategoryService;
 
     public interface ICategoryService
     {
-        Task<(Category? cat, string? error)> CreateCategoryAdminOnly(CreateCategoryDto request);
+        Task<(Category? cat, string? error)> CreateCategoryAdminOnly(CreateCategoryDto request, int userId);
         Task<(List<Category> cat, string? error)> GetCategory(int userId);
         Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request);
         Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request);

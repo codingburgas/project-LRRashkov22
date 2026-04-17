@@ -37,7 +37,7 @@
         <p class="text-muted" id="welcome-message">Welcome back!</p>
       </div>
       <div>
-        <button onclick="openSetBudgets()" class="btn btn-outline-secondary">Set Budgets</button>
+        <button onclick="openCategoryManager()" class="btn btn-outline-secondary">Manage Categories</button>
       </div>
       <div>
         <button onclick="openDeposit()" class="btn btn-outline-secondary">Deposit</button>
@@ -182,7 +182,7 @@
 </div>
 
                   <!-- setup modal -->
-<div class="modal fade" id="SetupModal" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="SetupModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content p-4">
 
@@ -200,9 +200,9 @@
         + Add category
       </button>
 
-      <button onclick="submitSetup()" class="btn btn-primary w-100">
-        Save
-      </button>
+<button onclick="saveCategoryChanges()" class="btn btn-primary w-100">
+  Save Changes
+</button>
 
     </div>
   </div>

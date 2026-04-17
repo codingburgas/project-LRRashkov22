@@ -5,7 +5,7 @@ namespace Personal_Finance_Tracker.Services.CardManage;
 
 public class CardService(UserDbContext context) : ICardService
 {
-    public async Task<(Card? card, string error)> CreateCard(CardDto request)
+    public async Task<(Account? card, string error)> CreateCard(CardDto request)
     {
         if (string.IsNullOrWhiteSpace(request.CardHolderName))
             return (null, "Card holder name is required");
@@ -30,7 +30,7 @@ public class CardService(UserDbContext context) : ICardService
 
         if (request.CVV.Length != 3 || !request.CVV.All(char.IsDigit))
             return (null, "CVV must be exactly 3 digits");
-        var card = new Card
+        var card = new Account
         {
             CardHolderName = request.CardHolderName,
             CardNumber = request.MaskedCardNumber,

@@ -36,16 +36,17 @@ public class CategoryService : ICategoryService
 
         return categories;
     }
-    public async Task<(Category? cat, string? error)> CreateCategoryAdminOnly(CreateCategoryDto request)
+    public async Task<(Category? cat, string? error)> CreateCategoryAdminOnly(CreateCategoryDto request, int userId)
     {
         if (string.IsNullOrEmpty(request.Name)) return (null, "Category name cannot be null");
-        if (await context.Categories.AnyAsync(cat => cat.Name == request.Name)) return (null, "Category name already exists");
+        if (await context.Categories.AnyAsync(cat => cat.Name == request.Name && cat.UserId == request.userId)) return (null, "Category name already exists");
         if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
         var category = new Category
         {
             Name = request.Name,
             BudgetLimit = request.BudgetLimit,
-            IsIncome = request.IsIncome
+            IsIncome = request.IsIncome,
+            UserId = userId
         };
 
         context.Categories.Add(category);

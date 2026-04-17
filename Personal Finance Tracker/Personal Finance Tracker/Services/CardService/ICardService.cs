@@ -7,7 +7,7 @@ namespace Personal_Finance_Tracker.Services.CardManage
 {
     public interface ICardService
     {
-        Task<(Card? card, string error)> CreateCard(CardDto req);
+        Task<(Account? card, string error)> CreateCard(CardDto req);
 
     }
 }

@@ -38,16 +38,17 @@ namespace Personal_Finance_Tracker.Controller
             return Ok(categories);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> CreateCategory(CreateCategoryDto request)
         {
-            var (cat, error) = await category.CreateCategoryAdminOnly(request);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var (cat, error) = await category.CreateCategoryAdminOnly(request, userId);
             if (error != null) return BadRequest(error);
             return Ok(cat);
         }
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> UpdateCategory(int id,CategoryDto request)
         {
             request.Id = id;
@@ -60,7 +61,7 @@ namespace Personal_Finance_Tracker.Controller
             return Ok(cat);
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var dto = new CategoryDto { Id = id };

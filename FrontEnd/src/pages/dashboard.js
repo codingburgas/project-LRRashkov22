@@ -443,3 +443,117 @@ window.addCustomCategory = function () {
 
     container.appendChild(div);
 };
+
+
+
+//----------------------------------------------------------------
+window.openCategoryManager = async function () {
+    const token = getToken();
+
+    // 🔥 взимаме user категории
+    const res = await getCategories(token);
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    const container = document.getElementById("setup-categories");
+    container.innerHTML = "";
+
+    // 🔥 показваме ВСИЧКИ user категории (editable)
+    data.forEach(c => {
+        const div = document.createElement("div");
+
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <input type="text" class="form-control w-25 name" value="${c.name}" data-id="${c.id}" />
+                
+                <select class="form-control w-25 type" data-id="${c.id}">
+                    <option value="expense" ${!c.isIncome ? "selected" : ""}>Expense</option>
+                    <option value="income" ${c.isIncome ? "selected" : ""}>Income</option>
+                </select>
+
+                <input type="number" class="form-control w-25 amount" value="${c.budgetLimit}" data-id="${c.id}" />
+
+                <button class="btn btn-danger btn-sm" onclick="deleteCategory(${c.id})">X</button>
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+
+    // 🔥 чистим custom section
+    document.getElementById("custom-categories").innerHTML = "";
+
+    new bootstrap.Modal(document.getElementById('SetupModal')).show();
+};
+
+window.saveCategoryChanges = async function () {
+    const token = getToken();
+
+    const rows = document.querySelectorAll("#setup-categories > div, #custom-categories > div");
+
+    for (const row of rows) {
+        const nameInput = row.querySelector(".name");
+        const typeInput = row.querySelector(".type");
+        const amountInput = row.querySelector(".amount");
+
+        const id = nameInput.dataset.id;
+
+        const payload = {
+            name: nameInput.value,
+            isIncome: typeInput.value === "income",
+            budgetLimit: parseFloat(amountInput.value) || 0
+        };
+
+        // 🔥 ако има id → UPDATE
+        if (id) {
+            await fetch(`https://localhost:7095/api/categories/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token
+                },
+body: JSON.stringify({
+    Id: parseInt(id),
+    Name: payload.name,
+    IsIncome: payload.isIncome,
+    BudgetLimit: payload.budgetLimit
+})
+            });
+        }
+        // 🔥 ако НЯМА id → CREATE
+        else {
+            await fetch(`https://localhost:7095/api/categories`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token
+                },
+body: JSON.stringify({
+    Name: payload.name,
+    IsIncome: payload.isIncome,
+    BudgetLimit: payload.budgetLimit
+})
+            });
+        }
+    }
+
+    bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
+
+    loadCategories();
+    loadDashboard();
+    loadChart();
+};
+
+window.deleteCategory = async function (id) {
+    const token = getToken();
+
+    await fetch(`https://localhost:7095/api/categories/${id}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: "Bearer " + token
+        }
+    });
+
+    document.querySelector(`[data-id="${id}"]`)?.closest("div").remove();
+};
