@@ -1,5 +1,73 @@
 [
   {
+    "ContainingType": "Personal_Finance_Tracker.Controller.AccountController",
+    "Method": "GetAccounts",
+    "RelativePath": "api/account",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.AccountController",
+    "Method": "CreateAccount",
+    "RelativePath": "api/account",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Personal_Finance_Tracker.Models.AccountDto.AccountDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.AccountController",
+    "Method": "UpdateAccount",
+    "RelativePath": "api/account",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Personal_Finance_Tracker.Models.AccountDto.AccountDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.AccountController",
+    "Method": "DeleteAccount",
+    "RelativePath": "api/account/{accountId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.AccountController",
+    "Method": "SyncBalances",
+    "RelativePath": "api/account/sync-balances",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Personal_Finance_Tracker.Controller.AnalyticsController",
     "Method": "GetBudgetInformation",
     "RelativePath": "api/Analytics/budget",

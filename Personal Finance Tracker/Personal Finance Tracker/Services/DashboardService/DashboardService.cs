@@ -85,17 +85,7 @@ namespace Personal_Finance_Tracker.Services.DashboardService
             }
             if (mode == "monthly")
             {
-                //return transactions
-                //    .GroupBy(t => new { t.Date.Year, t.Date.Month })
-                //    .Select(g => new DashboardChartDto
-                //    {
-                //        Date = new DateTime(g.Key.Year, g.Key.Month, 1),
-                //        Label = $"{g.Key.Month}/{g.Key.Year}",
-                //        Income = g.Where(x => x.IsIncome).Sum(x => x.Amount),
-                //        Expense = g.Where(x => !x.IsIncome).Sum(x => x.Amount)
-                //    })
-                //    .OrderBy(x => x.Date)
-                //    .ToList();
+
                 var list = transactions
     .GroupBy(t => new { t.Date.Year, t.Date.Month })
     .Select(g => new DashboardChartDto

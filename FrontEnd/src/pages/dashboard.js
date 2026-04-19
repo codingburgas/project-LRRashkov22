@@ -3,7 +3,7 @@ import { getDashboardData } from "../api/dashboardApi.js";
 import { getTransactions, getRecentTransactions } from "../api/transactionApi.js";
 import { getCategories, getSetupStatus, setupCategories } from "../api/categoryApi.js";
 import { getChartData } from "../api/dashboardApi.js";
-
+import { getAccounts } from "../api/accountApi.js";
 
 let isIncome = true;
 let chartInstance;
@@ -24,6 +24,7 @@ window.openDeposit = function () {
     isIncome = true;
     currentModal = "transaction";
     loadCategories();
+    loadAccounts();
     document.getElementById("modal-title").innerText = "Deposit";
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
 };
@@ -32,6 +33,7 @@ window.openWithdraw = function () {
     isIncome = false;
     currentModal = "transaction";
     loadCategories();
+    loadAccounts();
     document.getElementById("modal-title").innerText = "Withdraw";
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
 };
@@ -73,6 +75,27 @@ async function loadCategories() {
     });
 
     populateCategoryFilterMenu(data);
+}
+
+async function loadAccounts() {
+    const token = getToken();
+    const res = await getAccounts(token);
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    const select = document.getElementById("account");
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    data.forEach(a => {
+        const option = document.createElement("option");
+        option.value = a.id;
+        option.text = a.name;
+        select.appendChild(option);
+    });
 }
 
 function populateCategoryFilterMenu(categories) {
@@ -117,8 +140,9 @@ window.submitTransaction = async function () {
     const description = document.getElementById("description").value;
     const categoryId = parseInt(document.getElementById("category").value);
     const dateValue = document.getElementById("date").value;
+    const accountId = parseInt(document.getElementById("account").value);
     
-    if (!amount || !categoryId || !dateValue) {
+    if (!accountId || !amount || !categoryId || !dateValue) {
         alert("Fill all fields");
         return;
     }
@@ -135,6 +159,7 @@ window.submitTransaction = async function () {
             amount,
             description,
             categoryId,
+            accountId,
             isIncome,
             transactionDate: date
         })
@@ -191,18 +216,30 @@ async function loadRecent() {
     data.forEach(t => {
         const div = document.createElement("div");
 
-        div.innerHTML = `
-            <div class="d-flex justify-content-between">
-                <div>
-                    <strong>${t.description}</strong><br>
-                    <small>${t.categoryName}</small>
-                </div>
-                <div class="${t.isIncome ? "text-success" : "text-danger"}">
-                    ${t.isIncome ? "+" : "-"}$${t.amount}
-                </div>
-            </div>
-            <hr/>
-        `;
+div.innerHTML = ` 
+<div class="d-flex justify-content-between align-items-start">
+    
+    <!-- LEFT -->
+    <div>
+        <strong>${t.description}</strong><br>
+        <span class="text-muted" style="font-size: 12px;">
+            Account: ${t.accountName}
+        </span>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="text-end">
+        <div class="${t.isIncome ? "text-success" : "text-danger"} fw-bold">
+            ${t.isIncome ? "+" : "-"}$${t.amount}
+        </div>
+        <div class="text-muted" style="font-size: 12px;">
+            ${new Date(t.transactionDate).toLocaleDateString()}
+        </div>
+    </div>
+
+</div>
+<hr class="my-2">
+`;
 
         container.appendChild(div);
     });
@@ -345,24 +382,16 @@ window.submitBudgetLimit = async function () {
 // ---------- SETUP ----------
 async function checkSetup() {
     const token = getToken();
-  //  if (sessionStorage.getItem("setupShown")) return;
     const res = await getSetupStatus(token);
     if (!res.ok) return;
-
     const isDone = await res.json();
-
     if (!isDone) {
         isSetupMode = true;
         await loadDefaultCategoriesForSetup();
-        //new bootstrap.Modal(document.getElementById('SetupModal')).show();
-
-        //-------------------------------------------------------------------------
-         const modal = new bootstrap.Modal(document.getElementById('SetupModal'));
-    modal.show();
-
-  //  sessionStorage.setItem("setupShown", "true");
-    }
-    //sessionStorage.setItem("setupShown", "true");
+        document.getElementById("setup-account-section").style.display = "block";
+        const modal = new bootstrap.Modal(document.getElementById('SetupModal'));
+        modal.show();
+    };
 }
 
 async function loadDefaultCategoriesForSetup() {
@@ -374,16 +403,12 @@ async function loadDefaultCategoriesForSetup() {
 });
     if (!res.ok) return;
     const data = await res.json();
-
     const container = document.getElementById("setup-categories");
     container.innerHTML = "";
-
     const defaults = data;
-
     defaults.forEach(c => {
-        const div = document.createElement("div");
-
-        div.innerHTML = `
+    const div = document.createElement("div");
+    div.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <input type="checkbox" value="${c.id}" />
@@ -399,19 +424,38 @@ async function loadDefaultCategoriesForSetup() {
 
 window.submitSetup = async function () {
     const token = getToken();
-
     const selected = [];
     const custom = [];
-
     document.querySelectorAll("#setup-categories input[type=checkbox]").forEach(cb => {
         if (cb.checked) selected.push(parseInt(cb.value));
     });
-
+    const accountName = document.getElementById("setup-account-name").value;
+    const accountType = parseInt(document.getElementById("setup-account-type").value);
+    if (isSetupMode && !accountName && !accountType) {
+        alert("Account name and type are required");
+        return;
+    }
+    if (isSetupMode) {
+    await fetch("https://localhost:7095/api/account", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+            name: accountName,
+            accountType: accountType
+        })
+    });
+}
     document.querySelectorAll(".custom-category").forEach(row => {
         const name = row.querySelector(".name").value;
         const amount = parseFloat(row.querySelector(".amount").value);
         const isIncome = row.querySelector(".type").value === "income";
-
+        if (!accountName) {
+            alert("Account name is required");
+            return;
+        } 
         if (name) {
             custom.push({
                 name,
@@ -430,9 +474,7 @@ window.submitSetup = async function () {
         alert("Setup failed");
         return;
     }
-
     bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
-
     loadCategories();
     loadDashboard();
     loadChart();
@@ -441,10 +483,8 @@ window.submitSetup = async function () {
 
 window.addCustomCategory = function () {
     const container = document.getElementById("custom-categories");
-
     const div = document.createElement("div");
     div.classList.add("custom-category", "mb-2");
-
     div.innerHTML = `
         <input class="form-control mb-1 name" placeholder="Name" />
         <input type="number" class="form-control mb-1 amount" placeholder="Budget" />
@@ -475,7 +515,7 @@ window.openCategoryManager = async function () {
 
     const data = await res.json();
     isSetupMode = false;
-
+    document.getElementById("setup-account-section").style.display = "none";
     const container = document.getElementById("setup-categories");
     container.innerHTML = "";
     // 🔥 показваме ВСИЧКИ user категории (editable)

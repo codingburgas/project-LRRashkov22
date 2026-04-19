@@ -158,6 +158,7 @@ async function loadTable() {
         tr.innerHTML = `
             <td>${new Date(t.transactionDate).toLocaleDateString()}</td>
             <td>${t.categoryName}</td>
+            <td>${t.accountName ?? "-"}</td>
             <td class="${t.isIncome ? "text-success" : "text-danger"}">
                 ${t.isIncome ? "+" : "-"}$${t.amount}
             </td>

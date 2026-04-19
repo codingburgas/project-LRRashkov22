@@ -16,10 +16,10 @@ namespace Personal_Finance_Tracker.Models.Entities
       public string Name { get; set; } = string.Empty;
 
         [Required]
-        public TypeAccount AccountType { get; set; }
+        public TypeAccount? AccountType { get; set; }
         public decimal Balance { get; set; }
-        public int UserId { get; set; }
-        public User User { get; set; } = null!;
+        public int? UserId { get; set; }
+        public User? User { get; set; } = null!;
 
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }

@@ -18,7 +18,11 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
         if (string.IsNullOrWhiteSpace(request.Description))  return (null, "Description is required");
 
         var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId);
+        var account = await context.Accounts
+        .FirstOrDefaultAsync(a => a.Id == request.AccountId && a.UserId == userId);
 
+        if (account == null)
+            return (null, "Invalid account");
         if (category == null)
             return (null, "Category not found");
         if (category.UserId != null && category.UserId != userId)
@@ -40,6 +44,14 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
         };
 
         context.Transactions.Add(transaction);
+        if (request.IsIncome)
+        {
+            account.Balance += request.Amount;
+        }
+        else
+        {
+            account.Balance -= request.Amount;
+        }
         await context.SaveChangesAsync();
 
         var result = new TransactionDto
@@ -70,7 +82,9 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
                 TransactionDate = t.Date,
                 IsIncome = t.IsIncome,
                 CategoryId = t.CategoryId,
-                CategoryName = t.Category.Name
+                CategoryName = t.Category.Name,
+                AccountId = t.AccountId,
+                AccountName = t.Account.Name
             })
             .ToListAsync();
     }
@@ -79,7 +93,7 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
         return await context.Transactions
             .Where(t => t.UserId == userId)
             .OrderByDescending(t => t.Date)
-            .Take(5)
+            .Take(10)
             .Select(t => new TransactionDto
             {
                 Id = t.Id,
@@ -88,7 +102,9 @@ namespace Personal_Finance_Tracker.Services.TransactionService;
                 TransactionDate = t.Date,
                 IsIncome = t.IsIncome,
                 CategoryId = t.CategoryId,
-                CategoryName = t.Category.Name
+                CategoryName = t.Category.Name,
+                AccountId = t.AccountId,
+                AccountName = t.Account.Name
             })
             .ToListAsync();
     }

@@ -15,6 +15,7 @@ using Personal_Finance_Tracker.Services.TransactionService;
 using Personal_Finance_Tracker.Models.Entities;
 using Personal_Finance_Tracker.Services.DashboardService;
 using Personal_Finance_Tracker.Services.Analytics;
+using Personal_Finance_Tracker.Services.Accounts;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -44,6 +45,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 //----------------------------------------------------------------------
 builder.Services.AddCors(options =>
 {

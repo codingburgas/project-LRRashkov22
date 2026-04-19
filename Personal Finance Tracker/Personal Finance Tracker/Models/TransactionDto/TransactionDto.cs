@@ -11,6 +11,7 @@ namespace Personal_Finance_Tracker.Models.TransactionDto
         public string CategoryName { get; set; } = string.Empty;
         public DateTime? TransactionDate  { get; set; }
         public bool IsIncome { get; set; }
+        public string AccountName { get; set; } = string.Empty;
         public int AccountId { get; set; }
     }
 }
