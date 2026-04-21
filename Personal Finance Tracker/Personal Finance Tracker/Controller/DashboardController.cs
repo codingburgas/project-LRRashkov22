@@ -52,7 +52,7 @@ namespace Personal_Finance_Tracker.Controller
             if (error != null)
                 return BadRequest(error);
 
-            return Ok(data);
+            return Ok();
         }
     }
 }

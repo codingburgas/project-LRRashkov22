@@ -108,8 +108,6 @@ namespace Personal_Finance_Tracker.Services.DashboardService
 
                 return list;
             }
-
-            // 🔥 YEARLY
             if (mode == "yearly")
             {
                 var list = transactions

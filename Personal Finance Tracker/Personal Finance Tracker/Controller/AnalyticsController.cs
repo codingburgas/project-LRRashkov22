@@ -17,18 +17,28 @@ namespace Personal_Finance_Tracker.Controller
         }
         [Authorize]
         [HttpGet("budget")]
-        public async Task<ActionResult> GetBudgetInformation() {
+        public async Task<ActionResult> GetBudgetInformation(int month, int year) {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var result = await analyticsService.GetBudgetByUser(userId);
+            var result = await analyticsService.GetBudgetByUser(userId, month, year);
             return Ok(result);
         }
         [Authorize]
         [HttpGet("target")]
-        public async Task<ActionResult> GetTargetInformation()
+        public async Task<ActionResult> GetTargetInformation(int month, int year)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var result = await analyticsService.GetTargetByUser(userId);
+            var result = await analyticsService.GetTargetByUser(userId, month, year);
             return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("reset")]
+        public async Task<IActionResult> ResetMonthAsync(int month, int year)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            await analyticsService.ResetMonth(month, year, userId);
+
+            return Ok();
         }
 
     }

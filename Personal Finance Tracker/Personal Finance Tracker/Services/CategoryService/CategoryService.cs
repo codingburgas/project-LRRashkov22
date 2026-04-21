@@ -86,17 +86,40 @@ public class CategoryService : ICategoryService
     public async Task<(Category? cat, string? error)> AddCategoryBudgetByUser(int userId, SetBudgetDto request)
     {
         if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
-        if (request.Amount < 0)return (null, "Budget limit cannot be negative");
-        var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId);
-        if (category == null) return (null, "Category not found");
-        category.BudgetLimit = request.Amount;
+        var existing = await context.MonthlyBudgets
+            .FirstOrDefaultAsync(x =>
+                x.UserId == userId &&
+                x.CategoryId == request.CategoryId &&
+                x.Month == request.Month &&
+                x.Year == request.Year);
+
+        if (existing != null)
+        {
+            existing.Amount = request.Amount;
+        }
+        else
+        {
+            context.MonthlyBudgets.Add(new MonthlyBudget
+            {
+                UserId = userId,
+                CategoryId = request.CategoryId,
+                Month = request.Month,
+                Year = request.Year,
+                Amount = request.Amount
+            });
+        }
+        var category = await context.Categories
+            .FirstOrDefaultAsync(c => c.Id == request.CategoryId && c.UserId == userId);
+
         await context.SaveChangesAsync();
+
         return (category, null);
     }
 
     public async Task<(Category? cat, string? error)> UpdateCategoryAdminOnly(CategoryDto request, int userId)
     {
         if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
+
         if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
             if (string.IsNullOrEmpty(request.Name)) return (null, "Category name cannot be null");
            
@@ -135,24 +158,21 @@ public class CategoryService : ICategoryService
         if (user.HasCompletedCategorySetup)
             return (false, "Already completed");
 
-        // 🔥 1. взимаме default категории
         var defaultCategories = await context.Categories
             .Where(c => c.UserId == null && request.DefaultCategoryIds.Contains(c.Id))
             .ToListAsync();
 
-        // 🔥 2. копираме ги към user
         foreach (var c in defaultCategories)
         {
             context.Categories.Add(new Category
             {
                 Name = c.Name,
                 IsIncome = c.IsIncome,
-                BudgetLimit = c.BudgetLimit, // може и 0 ако искаш
+                BudgetLimit = c.BudgetLimit, 
                 UserId = userId
             });
         }
 
-        // 🔥 3. custom категории
         foreach (var custom in request.CustomCategories)
         {
             context.Categories.Add(new Category

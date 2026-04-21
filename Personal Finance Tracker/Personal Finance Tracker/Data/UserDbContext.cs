@@ -7,6 +7,7 @@ namespace Personal_Finance_Tracker.Data;
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<MonthlyBudget> MonthlyBudgets { get; set; }
         public DbSet<Account> Accounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

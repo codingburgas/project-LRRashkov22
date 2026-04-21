@@ -3,13 +3,24 @@ import { getToken } from "../utils/auth.js";
 
 let expenseChart;
 let incomeChart;
-
+let selectedMonth = new Date().toISOString().slice(0, 7);
+// function getMonthYear() {
+//   const [year, month] = selectedMonth.split("-");
+//   return { year: parseInt(year), month: parseInt(month) };
+// }
 // ---------------- HELPERS ----------------
 function getColor(p) {
   if (p > 100) return "#8B0000"; // dark red (over budget)
   if (p > 80) return "red";
   if (p > 50) return "orange";
   return "green";
+}
+function getMonthYear() {
+  const [year, month] = selectedMonth.split("-");
+  return {
+    month: parseInt(month),
+    year: parseInt(year)
+  };
 }
 function getColorTarget(p) {
       if (p > 80) return "green";
@@ -212,21 +223,29 @@ document.addEventListener("DOMContentLoaded", initAnalytics);
 
 async function initAnalytics() {
   const token = getToken();
+  const { month, year } = getMonthYear();
+  // const [budgetRes, targetRes] = await Promise.all([
+  //   getBudgetData(token),
+  //   getTargetData(token)
+  // ]);
 
+  // if (!budgetRes.ok || !targetRes.ok) {
+  //   console.log("Request failed");
+  //   return;
+  // }
+
+  
   const [budgetRes, targetRes] = await Promise.all([
-    getBudgetData(token),
-    getTargetData(token)
+    fetch(`https://localhost:7095/api/Analytics/budget?month=${month}&year=${year}`, {
+      headers: { Authorization: "Bearer " + token }
+    }),
+    fetch(`https://localhost:7095/api/Analytics/target?month=${month}&year=${year}`, {
+      headers: { Authorization: "Bearer " + token }
+    })
   ]);
-
-  if (!budgetRes.ok || !targetRes.ok) {
-    console.log("Request failed");
-    return;
-  }
-
+  
   const budgetData = await budgetRes.json();
   const targetData = await targetRes.json();
-
-
   const expenseColors = generateColors(budgetData.length);
   const incomeColors = generateColors(targetData.length); 
 
@@ -237,3 +256,21 @@ async function initAnalytics() {
   attachHoverSync("analytics-table-body", expenseChart);
   attachHoverSync("analytics-table-body-target", incomeChart);
 }
+document.getElementById("monthPicker").addEventListener("change", (e) => {
+  selectedMonth = e.target.value;
+  initAnalytics();
+});
+
+window.resetMonth = async function () {
+  const token = getToken();
+  const { month, year } = getMonthYear();
+
+  await fetch(`https://localhost:7095/api/Analytics/reset?month=${month}&year=${year}`, {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token
+    }
+  });
+
+  initAnalytics();
+};

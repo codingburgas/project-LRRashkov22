@@ -23,6 +23,13 @@ window.setMode = function (mode, days) {
     currentDays = days;
     loadChart();
 };
+function getCurrentMonthYear() {
+    const now = new Date();
+    return {
+        month: now.getMonth() + 1,
+        year: now.getFullYear()
+    };
+}
 window.openDeposit = function () {
     clearModalError("transaction");
     isIncome = true;
@@ -615,51 +622,52 @@ if (isDemoUser()) {
         const amountInput = row.querySelector(".amount");
 
         const id = nameInput.dataset.id;
-
+        const { month, year } = getCurrentMonthYear();
         const payload = {
             name: nameInput.value,
             isIncome: typeInput.value === "income",
             budgetLimit: parseFloat(amountInput.value) || 0
         };
 
-        let res;
+const res1 = await fetch(`https://localhost:7095/api/categories/${id}`, {
+    method: "PUT",
+    headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({
+        Id: parseInt(id),
+        Name: payload.name,
+        IsIncome: payload.isIncome,
+        BudgetLimit: 0
+    })
+});
 
-        // 🔥 UPDATE
-        if (id !== undefined && id !== null && id !== "") {
-            res = await fetch(`https://localhost:7095/api/categories/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token
-                },
-                body: JSON.stringify({
-                    Id: parseInt(id),
-                    Name: payload.name,
-                    IsIncome: payload.isIncome,
-                    BudgetLimit: payload.budgetLimit
-                })
-            });
-        }
-        // 🔥 CREATE
-        else {
-            res = await fetch(`https://localhost:7095/api/categories`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token
-                },
-                body: JSON.stringify({
-                    Name: payload.name,
-                    IsIncome: payload.isIncome,
-                    BudgetLimit: payload.budgetLimit
-                })
-            });
-        }
-        if (!res.ok) {
-            const err = await res.text();
-            showModalError(err || "Category update failed", "setup");
-            return; // спира whole save
-        }
+if (!res1.ok) {
+    const err = await res1.text();
+    showModalError(err || "Category update failed", "setup");
+    return;
+}
+
+const res2 = await fetch(`https://localhost:7095/api/Dashboard/budget`, {
+    method: "PUT",
+    headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({
+        categoryId: parseInt(id),
+        amount: payload.budgetLimit,
+        month: month,
+        year: year
+    })
+});
+
+if (!res2.ok) {
+    const err = await res2.text();
+    showModalError(err || "Budget update failed", "setup");
+    return;
+}
     }
 
     bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
