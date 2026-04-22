@@ -1,6 +1,6 @@
 import { getBudgetData, getTargetData } from "../api/analyticsApi.js";
 import { getToken } from "../utils/auth.js";
-
+import { isDemoUser } from "../utils/auth.js";
 let expenseChart;
 let incomeChart;
 let selectedMonth = new Date().toISOString().slice(0, 7);
@@ -233,13 +233,16 @@ async function initAnalytics() {
   //   console.log("Request failed");
   //   return;
   // }
-
+const resetBtn = document.querySelector("button[onclick='resetMonth()']");
+if (resetBtn) {
+    resetBtn.disabled = isDemoUser();
+}
   
   const [budgetRes, targetRes] = await Promise.all([
-    fetch(`https://localhost:7095/api/Analytics/budget?month=${month}&year=${year}`, {
+    fetch(`https://api-lecho.vanix.shop/api/Analytics/budget?month=${month}&year=${year}`, {
       headers: { Authorization: "Bearer " + token }
     }),
-    fetch(`https://localhost:7095/api/Analytics/target?month=${month}&year=${year}`, {
+    fetch(`https://api-lecho.vanix.shop/api/Analytics/target?month=${month}&year=${year}`, {
       headers: { Authorization: "Bearer " + token }
     })
   ]);
@@ -265,7 +268,7 @@ window.resetMonth = async function () {
   const token = getToken();
   const { month, year } = getMonthYear();
 
-  await fetch(`https://localhost:7095/api/Analytics/reset?month=${month}&year=${year}`, {
+  await fetch(`https://api-lecho.vanix.shop/api/Analytics/reset?month=${month}&year=${year}`, {
     method: "POST",
     headers: {
       Authorization: "Bearer " + token

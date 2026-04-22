@@ -67,7 +67,7 @@ function populateCategoryFilterMenu(categories) {
 async function populateAccountFilterMenu() {
     const token = getToken();
 
-    const res = await fetch("https://localhost:7095/api/account", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/account", {
         headers: { Authorization: "Bearer " + token }
     });
 
@@ -136,7 +136,7 @@ window.submitTransaction = async function () {
 
     const date = new Date(dateValue + "T00:00:00").toISOString();
 
-    const res = await fetch("https://localhost:7095/api/transaction", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/transaction", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

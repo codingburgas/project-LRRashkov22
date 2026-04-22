@@ -1,5 +1,5 @@
 export async function getAccounts(token) {
-    return fetch("https://localhost:7095/api/account", {
+    return fetch("https://api-lecho.vanix.shop/api/account", {
         headers: {
             Authorization: "Bearer " + token
         }

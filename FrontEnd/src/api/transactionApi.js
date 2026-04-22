@@ -1,4 +1,4 @@
-const BASE_URL = "https://localhost:7095/api/transaction";
+const BASE_URL = "https://api-lecho.vanix.shop/api/transaction";
 
 export async function getTransactions(token) {
     return fetch(BASE_URL, {

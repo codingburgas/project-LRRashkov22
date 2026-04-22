@@ -1,4 +1,4 @@
-const API_URL = "https://localhost:7095/api/Auth";
+const API_URL = "https://api-lecho.vanix.shop/api/Auth";
 
 // ---------- HELPERS ----------
 

@@ -79,7 +79,17 @@ window.openSetBudgets = function () {
 };
 async function loadCategories() {
     const token = getToken();
-    const res = await getCategories(token);
+    // const res = await getCategories(token);
+    const { month, year } = getCurrentMonthYear();
+
+    const res = await fetch(
+    `https://api-lecho.vanix.shop/api/categories/with-budgets?month=${month}&year=${year}`,
+    {
+        headers: {
+        Authorization: "Bearer " + token
+        }
+    }
+    );  
     if (!res.ok) {
         console.error(await res.text());
         return;
@@ -186,7 +196,7 @@ window.submitTransaction = async function () {
 
     const date = new Date(dateValue + "T00:00:00").toISOString();
 
-    const res = await fetch("https://localhost:7095/api/transaction", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/transaction", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -443,7 +453,7 @@ async function checkSetup() {
 
 async function loadDefaultCategoriesForSetup() {
     const token = getToken();
-    const res = await fetch("https://localhost:7095/api/categories/defaults", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/categories/defaults", {
     headers: {
         Authorization: "Bearer " + token
     }
@@ -494,7 +504,7 @@ if (isSetupMode) {
     }
 }
     if (isSetupMode) {
-    await fetch("https://localhost:7095/api/account", {
+    await fetch("https://api-lecho.vanix.shop/api/account", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -553,6 +563,7 @@ window.addCustomCategory = function () {
 };
 
 window.handleSave = function () {
+     console.log("CLICKED SAVE");
     if (isSetupMode) {
         submitSetup();
     } else {
@@ -560,52 +571,15 @@ window.handleSave = function () {
     }
 };
 
-//----------------------------------------------------------------
 window.openCategoryManager = async function () {
     clearModalError("setup");
-    const token = getToken();
-    const isDemo = isDemoUser();
 
-    const res = await getCategories(token);
-    if (!res.ok) return;
-
-    const data = await res.json();
     isSetupMode = false;
     document.getElementById("setup-account-section").style.display = "none";
-    const container = document.getElementById("setup-categories");
-    container.innerHTML = "";
-    data.forEach(c => {
-        const div = document.createElement("div");
-
-        div.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <input type="text" class="form-control w-25 name" value="${c.name}" data-id="${c.id}" />
-                
-                <select class="form-control w-25 type" data-id="${c.id}">
-                    <option value="expense" ${!c.isIncome ? "selected" : ""}>Expense</option>
-                    <option value="income" ${c.isIncome ? "selected" : ""}>Income</option>
-                </select>
-
-                <input type="number" class="form-control w-25 amount" value="${c.budgetLimit}" data-id="${c.id}" />
-
-                <button class="btn btn-danger btn-sm" ${isDemo ? "disabled" : ""}  onclick="deleteCategory(${c.id})">X</button>
-            </div>
-        `;
-
-        container.appendChild(div);
-    });
-if (isDemo) {
-    document.querySelectorAll("#SetupModal .name, #SetupModal .type, #SetupModal .amount")
-        .forEach(el => el.disabled = true);
-
-    // disable "+ Add category"
-    const addBtn = document.querySelector("button[onclick='addCustomCategory()']");
-    if (addBtn) addBtn.disabled = true;
-}
     document.getElementById("custom-categories").innerHTML = "";
+    await renderCategoryManager(); 
 
     new bootstrap.Modal(document.getElementById('SetupModal')).show();
-    
 };
 
 window.saveCategoryChanges = async function () {
@@ -622,6 +596,55 @@ if (isDemoUser()) {
         const amountInput = row.querySelector(".amount");
 
         const id = nameInput.dataset.id;
+        if (!id) {
+    const name = nameInput.value;
+    const amount = parseFloat(amountInput.value) || 0;
+    const isIncome = typeInput.value === "income";
+
+    if (!name) continue;
+
+    // CREATE CATEGORY
+    const resCreate = await fetch("https://api-lecho.vanix.shop/api/categories", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+            name: name,
+            isIncome: isIncome,
+            budgetLimit: amount
+        })
+    });
+
+    if (!resCreate.ok) {
+        const err = await resCreate.text();
+        console.error("CREATE ERROR:", err);
+        continue;
+    }
+
+    const created = await resCreate.json();
+
+    // CREATE BUDGET
+    const { month, year } = getCurrentMonthYear();
+
+    await fetch("https://api-lecho.vanix.shop/api/Dashboard/budget", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+            categoryId: created.id,
+            amount: amount,
+            month,
+            year
+        })
+    });
+
+    continue;
+}
+            if (!id) continue;
         const { month, year } = getCurrentMonthYear();
         const payload = {
             name: nameInput.value,
@@ -629,7 +652,7 @@ if (isDemoUser()) {
             budgetLimit: parseFloat(amountInput.value) || 0
         };
 
-const res1 = await fetch(`https://localhost:7095/api/categories/${id}`, {
+const res1 = await fetch(`https://api-lecho.vanix.shop/api/categories/${id}`, {
     method: "PUT",
     headers: {
         "Content-Type": "application/json",
@@ -649,7 +672,7 @@ if (!res1.ok) {
     return;
 }
 
-const res2 = await fetch(`https://localhost:7095/api/Dashboard/budget`, {
+const res2 = await fetch(`https://api-lecho.vanix.shop/api/Dashboard/budget`, {
     method: "PUT",
     headers: {
         "Content-Type": "application/json",
@@ -672,7 +695,7 @@ if (!res2.ok) {
 
     bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
 
-    loadCategories();
+    await renderCategoryManager();
     loadDashboard();
     loadChart();
 };
@@ -683,7 +706,7 @@ window.deleteCategory = async function (id) {
         showModalError("Demo account is read-only", "setup");
         return;
          }
-    const res = await fetch(`https://localhost:7095/api/categories/${id}`, {
+    const res = await fetch(`https://api-lecho.vanix.shop/api/categories/${id}`, {
         method: "DELETE",
         headers: {
             Authorization: "Bearer " + token
@@ -696,3 +719,59 @@ window.deleteCategory = async function (id) {
         }
     document.querySelector(`[data-id="${id}"]`)?.closest("div").remove();
 };
+
+async function renderCategoryManager() {
+    const token = getToken();
+    const isDemo = isDemoUser();
+
+    const { month, year } = getCurrentMonthYear();
+
+    const res = await fetch(
+        `https://api-lecho.vanix.shop/api/categories/with-budgets?month=${month}&year=${year}`,
+        {
+            headers: { Authorization: "Bearer " + token }
+        }
+    );
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    if (!Array.isArray(data)) {
+        console.error("Expected array, got:", data);
+        return;
+    }
+    const container = document.getElementById("setup-categories");
+    container.innerHTML = "";
+
+    data.forEach(c => {
+        const div = document.createElement("div");
+
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <input type="text" class="form-control w-25 name" value="${c.name}" data-id="${c.id}" />
+                
+                <select class="form-control w-25 type" data-id="${c.id}">
+                    <option value="expense" ${!c.isIncome ? "selected" : ""}>Expense</option>
+                    <option value="income" ${c.isIncome ? "selected" : ""}>Income</option>
+                </select>
+
+                <input type="number" class="form-control w-25 amount" value="${c.budget}" data-id="${c.id}" />
+
+                <button class="btn btn-danger btn-sm" ${isDemo ? "disabled" : ""} onclick="deleteCategory(${c.id})">X</button>
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+      if (isDemo) {
+        document.querySelectorAll("#SetupModal input, #SetupModal select")
+            .forEach(el => {
+                if (el.type !== "button") {
+                    el.disabled = true;
+                }
+            });
+
+        const addBtn = document.querySelector("button[onclick='addCustomCategory()']");
+        if (addBtn) addBtn.disabled = true;
+    }
+}

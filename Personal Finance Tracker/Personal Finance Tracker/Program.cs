@@ -16,6 +16,7 @@ using Personal_Finance_Tracker.Models.Entities;
 using Personal_Finance_Tracker.Services.DashboardService;
 using Personal_Finance_Tracker.Services.Analytics;
 using Personal_Finance_Tracker.Services.Accounts;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -40,62 +41,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("AppSettings:Token")!)),
         };
     });
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-//----------------------------------------------------------------------
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend",
         policy => policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:3000", "http://localhost:4173", "https://lecho.vanix.shop", "https://www.lecho.vanix.shop", "http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
 var app = builder.Build();
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
-
-//    var demoUser = new User
-//    {
-//        Username = "demo",
-//        Role = "User"
-//    };
-//    demoUser.PasswordHash = new PasswordHasher<User>()
-//        .HashPassword(demoUser, "demo");
-
-//    context.Users.Add(demoUser);
-//    context.SaveChanges();
-//    if (!context.Users.Any(u => u.Role == "Admin"))
-//    {
-//        var admin = new User
-//        {
-//            Username = "admin",
-//            Role = "Admin"
-//        };
-
-//        admin.PasswordHash = new PasswordHasher<User>()
-//            .HashPassword(admin, "admin");
-
-//        context.Users.Add(admin);
-//        context.SaveChanges();
-//    }
-//}
-
 if (app.Environment.IsDevelopment())
 {
- 
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
-
+//app.UseHttpsRedirection();
 app.UseCors("frontend");
 app.UseAuthentication();
 app.UseAuthorization();

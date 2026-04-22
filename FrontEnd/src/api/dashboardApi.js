@@ -1,4 +1,4 @@
-const API_URL = "https://localhost:7095/api/dashboard";
+const API_URL = "https://api-lecho.vanix.shop/api/dashboard";
 
 export async function getDashboardData(token) {
     return fetch(API_URL, {
@@ -8,7 +8,7 @@ export async function getDashboardData(token) {
     });
 }
 export async function getChartData(token, days, mode) {
-    return fetch(`https://localhost:7095/api/dashboard/chart?days=${days}&mode=${mode}`, {
+    return fetch(`https://api-lecho.vanix.shop/api/dashboard/chart?days=${days}&mode=${mode}`, {
         headers: {
             Authorization: "Bearer " + token
         }

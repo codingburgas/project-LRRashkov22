@@ -1,5 +1,5 @@
 // api/categoryApi.js
-const BASE_URL = "https://localhost:7095/api/categories";
+const BASE_URL = "https://api-lecho.vanix.shop/api/categories";
 
 export async function getCategories(token) {
     return fetch(BASE_URL, {

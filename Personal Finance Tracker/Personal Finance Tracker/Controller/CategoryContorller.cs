@@ -48,6 +48,22 @@ namespace Personal_Finance_Tracker.Controller
 
             return Ok(done);
         }
+        [Authorize]
+        [HttpGet("with-budgets")]
+        public async Task<IActionResult> GetCategoriesWithBudgetsAsync(int month, int year)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var (result, error) = await category.GetCategoriesWithBudgets(userId, month, year);  
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("defaults-admin")]
+        public async Task<ActionResult> GetDefaultsAdmin()
+        {
+            var categories = await category.GetDefaultCategories();
+            return Ok(categories);
+        }
 
         [Authorize(Roles = "Admin")]
         [HttpPost("default")]

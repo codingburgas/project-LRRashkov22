@@ -45,7 +45,7 @@ window.submitAccount = async function () {
             return;
         }
 
-    const res = await fetch("https://localhost:7095/api/account", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/account", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -107,7 +107,7 @@ function renderPieChart(accounts) {
 async function loadAccountChart(accountId, accountName) {
     const token = getToken();
 
-    const res = await fetch("https://localhost:7095/api/transaction", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/transaction", {
         headers: {
             Authorization: "Bearer " + token
         }
@@ -204,7 +204,7 @@ function attachHoverSync(tableId, chart) {
 async function loadAccounts() {
     const token = getToken();
 
-    const res = await fetch("https://localhost:7095/api/account", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/account", {
         headers: {
             Authorization: "Bearer " + token
         }
@@ -328,7 +328,7 @@ window.saveEdit = async function (id) {
     const name = document.getElementById(`edit-name-${id}`).value;
     const type = parseInt(document.getElementById(`edit-type-${id}`).value);
 
-    const res = await fetch("https://localhost:7095/api/account", {
+    const res = await fetch("https://api-lecho.vanix.shop/api/account", {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -358,7 +358,7 @@ window.deleteAccount = async function (id, btn) {
     }
     if (!confirm("Delete this account?")) return;
 
-    const res = await fetch(`https://localhost:7095/api/account/${id}`, {
+    const res = await fetch(`https://api-lecho.vanix.shop/api/account/${id}`, {
         method: "DELETE",
         headers: {
             Authorization: "Bearer " + token

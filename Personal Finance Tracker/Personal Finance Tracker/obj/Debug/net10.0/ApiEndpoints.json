@@ -309,6 +309,16 @@
   },
   {
     "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "GetDefaultsAdmin",
+    "RelativePath": "api/categories/defaults-admin",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
     "Method": "SetupCategories",
     "RelativePath": "api/categories/setup",
     "HttpMethod": "POST",
@@ -331,6 +341,27 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Personal_Finance_Tracker.Controller.CategoryContorller",
+    "Method": "GetCategoriesWithBudgetsAsync",
+    "RelativePath": "api/categories/with-budgets",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "month",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "year",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
