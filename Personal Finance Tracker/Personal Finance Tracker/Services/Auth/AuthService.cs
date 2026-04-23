@@ -50,7 +50,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
     //Login----------------------------------------------------------------------
     public async Task<(TokenResponseDto? tokenRespone, string? error)> LoginAsync(UserDto request)
     {
-        
+
         var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
         if (user is null)
         {
@@ -64,7 +64,8 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
             await context.SaveChangesAsync();
             return (null, "User not found");
         }
-        if (user.LockEnd > DateTime.UtcNow || user.FailedAttempts >= 5) {
+        if (user.LockEnd > DateTime.UtcNow || user.FailedAttempts >= 5)
+        {
             return (null, $"exceeded attempts, try again after 1 minute");
         }
         user.FailedAttempts = 0;
@@ -101,7 +102,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
     private string GenerateRefreshToken()
     {
         var randomBytes = RandomNumberGenerator.GetBytes(32);
-       
+
         var token = Convert.ToBase64String(randomBytes)
             .TrimEnd('=')
             .Replace('+', '-')
@@ -118,7 +119,8 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return refreshToken;
     }
 
-    private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken) {
+    private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
+    {
         var user = await context.Users.FindAsync(userId);
         if (user is null || user.RefreshToken != refreshToken
             || user.RefreshTokenExpiryTime <= DateTime.UtcNow) return null;
@@ -126,10 +128,10 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
     }
     public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
     {
-       var user = await  ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
+        var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
         if (user is null) return null;
 
-       return await CreateTokenResponse(user);
+        return await CreateTokenResponse(user);
     }
 
 

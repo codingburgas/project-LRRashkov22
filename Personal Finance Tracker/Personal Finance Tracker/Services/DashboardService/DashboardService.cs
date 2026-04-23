@@ -14,7 +14,8 @@ namespace Personal_Finance_Tracker.Services.DashboardService
             this.context = context;
         }
 
-        public async Task<DashboardDto> GetDashboardAsync(int userId) {
+        public async Task<DashboardDto> GetDashboardAsync(int userId)
+        {
             var income = await context.Transactions
         .Where(t => t.UserId == userId && t.IsIncome)
         .SumAsync(t => t.Amount);
@@ -39,7 +40,6 @@ namespace Personal_Finance_Tracker.Services.DashboardService
                 .Where(t => t.UserId == userId && t.Date >= fromDate)
                 .ToListAsync();
 
-            // 🔥 DAILY
             if (mode == "daily")
             {
                 var grouped = transactions
@@ -54,7 +54,7 @@ namespace Personal_Finance_Tracker.Services.DashboardService
 
                 var result = new List<DashboardChartDto>();
 
-                decimal Balance = 0; 
+                decimal Balance = 0;
 
                 for (int i = 0; i <= days; i++)
                 {
@@ -77,7 +77,7 @@ namespace Personal_Finance_Tracker.Services.DashboardService
                         Label = date.ToString("MMM dd"),
                         Income = income,
                         Expense = expense,
-                        Balance = Balance 
+                        Balance = Balance
                     });
                 }
 
@@ -111,7 +111,7 @@ namespace Personal_Finance_Tracker.Services.DashboardService
             if (mode == "yearly")
             {
                 var list = transactions
-    .GroupBy(t =>  t.Date.Year)
+    .GroupBy(t => t.Date.Year)
     .Select(g => new DashboardChartDto
     {
         Date = new DateTime(g.Key, 1, 1),
@@ -129,13 +129,9 @@ namespace Personal_Finance_Tracker.Services.DashboardService
                     runningBalance += item.Income - item.Expense;
                     item.Balance = runningBalance;
                 }
-
                 return list;
             }
-
             return new List<DashboardChartDto>();
-
-           
         }
     }
 }

@@ -9,6 +9,6 @@ namespace Personal_Finance_Tracker.Models.AccountDto
         public TypeAccount? AccountType { get; set; }
         public int? UserId { get; set; }
         public decimal Balance { get; set; }
-        public int accountId { get; set; } 
+        public int accountId { get; set; }
     }
 }

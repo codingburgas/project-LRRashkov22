@@ -38,15 +38,15 @@ public class AccountController : ControllerBase
             return BadRequest(error);
         return Ok(account);
     }
-        [Authorize]
-        [HttpPut]
-        public async Task<ActionResult> UpdateAccount(AccountDto request)
-        {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
-            var (account, error) = await accountService.UpdateAccount(request, userId);
-            if (error != null)
-                return BadRequest(error);
-            return Ok(account);
+    [Authorize]
+    [HttpPut]
+    public async Task<ActionResult> UpdateAccount(AccountDto request)
+    {
+        var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+        var (account, error) = await accountService.UpdateAccount(request, userId);
+        if (error != null)
+            return BadRequest(error);
+        return Ok(account);
     }
     [Authorize]
     [HttpDelete("{accountId}")]

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;   
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Personal_Finance_Tracker.Services.Analytics;
@@ -17,7 +17,8 @@ namespace Personal_Finance_Tracker.Controller
         }
         [Authorize]
         [HttpGet("budget")]
-        public async Task<ActionResult> GetBudgetInformation(int month, int year) {
+        public async Task<ActionResult> GetBudgetInformation(int month, int year)
+        {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var result = await analyticsService.GetBudgetByUser(userId, month, year);
             return Ok(result);

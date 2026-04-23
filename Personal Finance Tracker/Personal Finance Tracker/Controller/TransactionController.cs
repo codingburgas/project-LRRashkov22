@@ -7,38 +7,30 @@ using Personal_Finance_Tracker.Models.TransactionDto;
 using System.Security.Claims;
 namespace Personal_Finance_Tracker.Controller;
 
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TransactionController : ControllerBase
+[Route("api/[controller]")]
+[ApiController]
+public class TransactionController : ControllerBase
+{
+    private readonly ITransactionService transaction;
+    public TransactionController(ITransactionService transaction)
     {
-        private readonly ITransactionService transaction;
-        public TransactionController(ITransactionService transaction)
-        {
-            this.transaction = transaction;
-        }
+        this.transaction = transaction;
+    }
 
-        [Authorize]
-        [HttpPost]
-        public async Task<ActionResult> CreateTransactionAsync([FromBody] CreateTransactionDto request)
-        {
-            // 1. Взимаш userId от token
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    [Authorize]
+    [HttpPost]
+    public async Task<ActionResult> CreateTransactionAsync([FromBody] CreateTransactionDto request)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (userIdClaim == null)
-                return Unauthorized();
-
-            int userId = int.Parse(userIdClaim.Value);
-
-            // 2. Викаш service
-            var (transactionResult, error) = await transaction.CreateTransaction(request, userId);
-
-            // 3. Handle error
-            if (error != null)
-                return BadRequest(error);
-
-            // 4. Success
-            return Ok(transactionResult);
-        }
+        if (userIdClaim == null)
+            return Unauthorized();
+        int userId = int.Parse(userIdClaim.Value);
+        var (transactionResult, error) = await transaction.CreateTransaction(request, userId);
+        if (error != null)
+            return BadRequest(error);
+        return Ok(transactionResult);
+    }
 
     [Authorize]
     [HttpGet]

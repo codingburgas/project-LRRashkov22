@@ -19,7 +19,7 @@ public class CategoryService : ICategoryService
     public async Task<(List<Category> cat, string? error)> GetCategory(int userId)
     {
         var categories = await context.Categories
-        .Where(c => c.UserId == userId )
+        .Where(c => c.UserId == userId)
         .ToListAsync();
         await context.Categories.ToListAsync();
         Console.WriteLine($"Categories count: {categories.Count}");
@@ -37,7 +37,8 @@ public class CategoryService : ICategoryService
         return categories;
     }
 
-    public async Task<(List<CategoryWithBudgetDto>? cat, string? error)> GetCategoriesWithBudgets(int userId, int month, int year) {
+    public async Task<(List<CategoryWithBudgetDto>? cat, string? error)> GetCategoriesWithBudgets(int userId, int month, int year)
+    {
         var categories = await context.Categories
             .Where(c => c.UserId == userId)
             .ToListAsync();
@@ -104,7 +105,7 @@ public class CategoryService : ICategoryService
 
     public async Task<(Category? cat, string? error)> AddCategoryBudgetByUser(int userId, SetBudgetDto request)
     {
-       if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
+        if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
         var existing = await context.MonthlyBudgets
             .FirstOrDefaultAsync(x =>
                 x.UserId == userId &&
@@ -140,22 +141,23 @@ public class CategoryService : ICategoryService
         if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
 
         if (request.BudgetLimit < 0) return (null, "Budget limit cannot be negative");
-            if (string.IsNullOrEmpty(request.Name)) return (null, "Category name cannot be null");
-           
-            var category = await context.Categories.FindAsync(request.Id);
+        if (string.IsNullOrEmpty(request.Name)) return (null, "Category name cannot be null");
 
-            if (category == null)
-                return (null, "Category not found");
+        var category = await context.Categories.FindAsync(request.Id);
 
-            category.Name = request.Name;
-            category.BudgetLimit = request.BudgetLimit;
-            category.IsIncome = request.IsIncome;
+        if (category == null)
+            return (null, "Category not found");
 
-            await context.SaveChangesAsync();
-            return (category, null);    
+        category.Name = request.Name;
+        category.BudgetLimit = request.BudgetLimit;
+        category.IsIncome = request.IsIncome;
+
+        await context.SaveChangesAsync();
+        return (category, null);
     }
 
-    public async Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request, int userId) {
+    public async Task<(Category? cat, string? error)> DeleteCategoryAdminOnly(CategoryDto request, int userId)
+    {
         if (DemoGuard.IsDemo(userId)) return (null, "Demo account is read-only. Create one to use full app");
         var category = await context.Categories.FindAsync(request.Id);
         if (category == null)
@@ -187,7 +189,7 @@ public class CategoryService : ICategoryService
             {
                 Name = c.Name,
                 IsIncome = c.IsIncome,
-                BudgetLimit = c.BudgetLimit, 
+                BudgetLimit = c.BudgetLimit,
                 UserId = userId
             });
         }
@@ -203,10 +205,10 @@ public class CategoryService : ICategoryService
             });
         }
 
-       
+
         user.HasCompletedCategorySetup = true;
 
-       await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return (true, null);
     }

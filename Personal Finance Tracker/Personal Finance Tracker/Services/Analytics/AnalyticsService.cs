@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Personal_Finance_Tracker.Data;
 using Personal_Finance_Tracker.Models.AnalyticsDto;
-using Personal_Finance_Tracker.Models.CategoryDto;  
+using Personal_Finance_Tracker.Models.CategoryDto;
 using Personal_Finance_Tracker.Models.Entities;
 using System.Security.Claims;
 namespace Personal_Finance_Tracker.Services.Analytics;
@@ -18,13 +18,6 @@ public class AnalyticsService : IAnalyticsService
 
     public async Task<List<AnalyticsDto>> GetBudgetByUser(int userId, int month, int year)
     {
-        //var categoriesss = await context.Categories.ToListAsync();
-        //Console.WriteLine($"All categories: {categoriesss.Count}");
-
-        //var userCategories = categoriesss.Where(c => c.UserId == userId).ToList();
-        //Console.WriteLine($"User categories: {userCategories.Count}");
-
-        //var now = DateTime.Now;
         var categories = await context.Categories.Where(c => c.UserId == userId && !c.IsIncome).ToListAsync();
         var transactions = await context.Transactions
         .Where(t => t.UserId == userId &&
@@ -40,7 +33,6 @@ public class AnalyticsService : IAnalyticsService
         foreach (var c in categories)
         {
             var spent = transactions.Where(t => t.CategoryId == c.Id).Sum(t => t.Amount);
-            //var budget = monthlyBudgets.FirstOrDefault(b => b.CategoryId == c.Id)?.Amount ?? c.BudgetLimit;
             var budget = monthlyBudgets.FirstOrDefault(b => b.CategoryId == c.Id)?.Amount ?? 0;
             result.Add(new AnalyticsDto
             {
@@ -78,8 +70,6 @@ public class AnalyticsService : IAnalyticsService
             var spent = transactions
                 .Where(t => t.CategoryId == c.Id)
                 .Sum(t => t.Amount);
-
-            //var budget = monthlyBudgets.FirstOrDefault(b => b.CategoryId == c.Id)?.Amount ?? c.BudgetLimit;
             var budget = monthlyBudgets.FirstOrDefault(b => b.CategoryId == c.Id)?.Amount ?? 0;
             result.Add(new AnalyticsDto
             {

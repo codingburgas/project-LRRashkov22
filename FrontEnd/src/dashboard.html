@@ -1,233 +1,322 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
-</head>
-<body>
-
-<div class="app">
-
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div>
-      <h4>PFT</h4>
-      <hr>
-      <a class="active">Dashboard</a>
-      <a href="./analytics.html">Analytics</a>
-      <br>
-      <small>MANAGEMENT</small>
-      <a href="./Transaction.html">Transactions</a>
-      <a href="./accounts.html">Accounts</a>
-    </div>
-<div id="demo-banner"
-     class="alert alert-danger text-center px-0 py-1 d-none"
-     style="font-weight: bold; font-size: larger; color: #000000e0;">
-    Demo account – changes are disabled
-</div>
-    <a onclick="logout()">Log Out</a>
-  </div>
-
-  <!-- Main -->
-  <div class="main">
-
-    <!-- Header -->
-    <div class="top-bar">
-      <div>
-        <h3>Dashboard</h3> 
-        <p class="text-muted" id="welcome-message">Welcome back!</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div>
+          <h4>PFT</h4>
+          <hr />
+          <a class="active">Dashboard</a>
+          <a href="./analytics.html">Analytics</a>
+          <br />
+          <small>MANAGEMENT</small>
+          <a href="./Transaction.html">Transactions</a>
+          <a href="./accounts.html">Accounts</a>
+        </div>
+        <div
+          id="demo-banner"
+          class="alert alert-danger text-center px-0 py-1 d-none"
+          style="font-weight: bold; font-size: larger; color: #000000e0"
+        >
+          Demo account – changes are disabled
+        </div>
+        <a onclick="logout()">Log Out</a>
       </div>
-      
-      <div>
-        <button onclick="openCategoryManager()" class="btn btn-outline-secondary">Manage Categories</button>
-      </div>
-      <div>
-        <button onclick="openDeposit()" class="btn btn-outline-secondary">Deposit</button>
-        <button onclick="openWithdraw()" class="btn btn-dark">Withdraw</button>
-      </div>
-    </div>
 
-    <!-- Content -->
-    <div class="content ">
+      <!-- Main -->
+      <div class="main">
+        <!-- Header -->
+        <div class="top-bar">
+          <div>
+            <h3>Dashboard</h3>
+            <p class="text-muted" id="welcome-message">Welcome back!</p>
+          </div>
 
-      <!-- Left -->
-      <div class="left">
+          <div>
+            <button
+              onclick="openCategoryManager()"
+              class="btn btn-outline-secondary"
+            >
+              Manage Categories
+            </button>
+          </div>
+          <div>
+            <button onclick="openDeposit()" class="btn btn-outline-secondary">
+              Deposit
+            </button>
+            <button onclick="openWithdraw()" class="btn btn-dark">
+              Withdraw
+            </button>
+          </div>
+        </div>
 
-        <!-- Cards -->
-        <div class="cards">
-  <div class="card card-box">
-    <div>
-      <p>Total Balance</p>
-      <h5 id="balance">0</h5>
-    </div>
-  </div>
-
-  <div class="card card-box">
-    <div>
-      <p>Income</p>
-      <h5 id="income">0</h5>
-    </div>
-  </div>
-
-  <div class="card card-box">
-    <div>
-      <p>Expenses</p>
-      <h5 id="expenses">0</h5>
-    </div>
-  </div>
-</div>
-
-        <!-- Chart -->
-        <div class="card chart-box px-3 pt-2">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div>
-              <h6 class="mb-0">Financial Overview</h6>
-            </div>
-            <div class="d-flex gap-3 align-items-center">
-              <div class="d-flex align-items-center gap-2">
-                <span style="width: 10px; height: 10px; background: #0d6efd; border-radius: 50%; display: inline-block;"></span>
-                <span>Income</span>
+        <!-- Content -->
+        <div class="content">
+          <!-- Left -->
+          <div class="left">
+            <!-- Cards -->
+            <div class="cards">
+              <div class="card card-box">
+                <div>
+                  <p>Total Balance</p>
+                  <h5 id="balance">0</h5>
+                </div>
               </div>
-              <div class="d-flex align-items-center gap-2">
-                <span style="width: 10px; height: 10px; background: #dc3545; border-radius: 50%; display: inline-block;"></span>
-                <span>Expenses</span>
+
+              <div class="card card-box">
+                <div>
+                  <p>Income</p>
+                  <h5 id="income">0</h5>
+                </div>
               </div>
-              <div class="d-flex align-items-center gap-2">
-                <span style="width: 10px; height: 10px; background: #28a746; border-radius: 50%; display: inline-block;"></span>
-                <span>Balance</span>
+
+              <div class="card card-box">
+                <div>
+                  <p>Expenses</p>
+                  <h5 id="expenses">0</h5>
+                </div>
               </div>
             </div>
-            <div class="dropdown">
-              <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="chartRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                Time range
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chartRangeDropdown">
-                <li><button class="dropdown-item" type="button" onclick="setMode('daily', 7)">7 days</button></li>
-                <li><button class="dropdown-item" type="button" onclick="setMode('daily', 30)">30 days</button></li>
-                <li><button class="dropdown-item" type="button" onclick="setMode('monthly', 365)">Monthly</button></li>
-                <li><button class="dropdown-item" type="button" onclick="setMode('yearly', 3650)">Yearly</button></li>
-              </ul>
+
+            <!-- Chart -->
+            <div class="card chart-box px-3 pt-2">
+              <div
+                class="d-flex align-items-center justify-content-between mb-3"
+              >
+                <div>
+                  <h6 class="mb-0">Financial Overview</h6>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <span
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        background: #0d6efd;
+                        border-radius: 50%;
+                        display: inline-block;
+                      "
+                    ></span>
+                    <span>Income</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        background: #dc3545;
+                        border-radius: 50%;
+                        display: inline-block;
+                      "
+                    ></span>
+                    <span>Expenses</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        background: #28a746;
+                        border-radius: 50%;
+                        display: inline-block;
+                      "
+                    ></span>
+                    <span>Balance</span>
+                  </div>
+                </div>
+                <div class="dropdown">
+                  <button
+                    class="btn btn-sm btn-outline-primary dropdown-toggle"
+                    type="button"
+                    id="chartRangeDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Time range
+                  </button>
+                  <ul
+                    class="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="chartRangeDropdown"
+                  >
+                    <li>
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        onclick="setMode('daily', 7)"
+                      >
+                        7 days
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        onclick="setMode('daily', 30)"
+                      >
+                        30 days
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        onclick="setMode('monthly', 365)"
+                      >
+                        Monthly
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        onclick="setMode('yearly', 3650)"
+                      >
+                        Yearly
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <canvas id="financeChart"></canvas>
+            </div>
+
+            <!-- Table -->
+            <div class="card transactions-box pt-2 px-3">
+              <h6>Expenses</h6>
+
+              <table class="table">
+                <thead class="table-light">
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="transactions-table"
+                  class="hover-effect-tables"
+                ></tbody>
+              </table>
             </div>
           </div>
-          <canvas id="financeChart"></canvas>
+
+          <!-- Right -->
+          <div class="right">
+            <div class="card recent-transactions p-3">
+              <h6>Recent Transactions</h6>
+              <div id="recent-list"></div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+    <div class="modal fade" id="transactionModal">
+      <div class="modal-dialog">
+        <div class="modal-content p-3">
+          <h5 id="transaction-title">Add Transaction</h5>
+          <div id="transaction-error" class="alert alert-danger d-none"></div>
+          <input id="amount" class="form-control mb-2" placeholder="Amount" />
+          <input
+            id="description"
+            class="form-control mb-2"
+            placeholder="Description"
+          />
+          <input
+            type="date"
+            id="date"
+            class="form-control mb-2"
+            placeholder="Date"
+          />
+          <p class="mb-1">Choose Category:</p>
+          <select id="category" class="form-control mb-2"></select>
+          <p class="mb-1">Choose Account:</p>
+          <select id="account" class="form-control mb-2"></select>
 
-        <!-- Table -->
-        <div class="card transactions-box pt-2 px-3 ">
-          <h6>Expenses</h6>
-
-          <table class="table">
-            <thead class="table-light">
-              <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Amount</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody id="transactions-table" class="hover-effect-tables"></tbody>
-          </table>
+          <button onclick="submitTransaction()" class="btn btn-primary">
+            Save
+          </button>
         </div>
-
       </div>
+    </div>
 
-      <!-- Right -->
-      <div class="right">
-
-      <div class="card recent-transactions p-3">
-        <h6>Recent Transactions</h6>
-        <div id="recent-list"></div>
+    <div class="modal fade" id="BudgetModal">
+      <div class="modal-dialog">
+        <div class="modal-content p-3">
+          <h5 id="budget-title">Set Budget</h5>
+          <div id="budget-error" class="alert alert-danger d-none"></div>
+          <input
+            id="limit-amount"
+            class="form-control mb-2"
+            placeholder="Limit Amount"
+          />
+          <select id="budgetLimit-category" class="form-control mb-2"></select>
+          <button onclick="submitBudgetLimit()" class="btn btn-primary">
+            Save
+          </button>
+        </div>
       </div>
+    </div>
 
+    <!-- setup modal -->
+    <div class="modal fade" id="SetupModal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content p-4">
+          <h4>Setup your categories</h4>
+
+          <h6 class="mt-3">Available categories</h6>
+          <div id="setup-categories"></div>
+
+          <hr />
+
+          <h6>Add custom categories</h6>
+          <div id="custom-categories"></div>
+
+          <button
+            onclick="addCustomCategory()"
+            class="btn btn-outline-secondary mb-3"
+          >
+            + Add category
+          </button>
+          <div id="setup-error" class="alert alert-danger d-none"></div>
+          <div id="setup-account-section">
+            <hr />
+            <h6>Create your first account</h6>
+            <input
+              id="setup-account-name"
+              class="form-control mb-2"
+              placeholder="Account name"
+            />
+
+            <select id="setup-account-type" class="form-control mb-3">
+              <option value="0">Credit Card</option>
+              <option value="1">Debit Card</option>
+              <option value="2">Bank Account</option>
+              <option value="3">Investment Account</option>
+              <option value="4">Wallet</option>
+            </select>
+          </div>
+          <button onclick="handleSave()" class="btn btn-primary w-100">
+            Save Changes
+          </button>
+        </div>
       </div>
-
     </div>
 
-  </div>
-
-</div>
-<div class="modal fade" id="transactionModal">
-  <div class="modal-dialog">
-    <div class="modal-content p-3">
-
-      <h5 id="transaction-title">Add Transaction</h5>
-      <div id="transaction-error" class="alert alert-danger d-none"></div>
-      <input id="amount" class="form-control mb-2" placeholder="Amount" />
-      <input id="description" class="form-control mb-2" placeholder="Description" />
-      <input type="date" id="date" class="form-control mb-2" placeholder="Date"/>
-      <p class="mb-1"> Choose Category:</p>
-      <select id="category" class="form-control mb-2"></select>
-      <p class="mb-1">Choose Account:</p>
-      <select id="account" class="form-control mb-2"></select>
-
-      <button onclick="submitTransaction()" class="btn btn-primary">Save</button>
-
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade" id="BudgetModal">
-  <div class="modal-dialog">
-    <div class="modal-content p-3">
-
-      <h5 id="budget-title">Set Budget</h5>
-        <div id="budget-error" class="alert alert-danger d-none"></div>
-      <input id="limit-amount" class="form-control mb-2" placeholder="Limit Amount" />
-      <select id="budgetLimit-category" class="form-control mb-2"></select>
-      <button onclick="submitBudgetLimit()" class="btn btn-primary">Save</button>
-
-    </div>
-  </div>
-</div>
-
-                  <!-- setup modal -->
-<div class="modal fade" id="SetupModal">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content p-4">
-
-      <h4>Setup your categories</h4>
-
-      <h6 class="mt-3">Available categories</h6>
-      <div id="setup-categories"></div>
-
-      <hr/>
-
-      <h6>Add custom categories</h6>
-      <div id="custom-categories"></div>
-
-      <button onclick="addCustomCategory()" class="btn btn-outline-secondary mb-3">
-        + Add category
-      </button>
-      <div id="setup-error" class="alert alert-danger d-none"></div>
-<div id="setup-account-section">
-    <hr/>
-    <h6>Create your first account</h6>
-    <input id="setup-account-name" class="form-control mb-2" placeholder="Account name" />
-
-    <select id="setup-account-type" class="form-control mb-3">
-        <option value="0">Credit Card</option>
-        <option value="1">Debit Card</option>
-        <option value="2">Bank Account</option>
-        <option value="3">Investment Account</option>
-        <option value="4">Wallet</option>
-    </select>
-</div>
-<button onclick="handleSave()" class="btn btn-primary w-100">
-  Save Changes
-</button>
-
-    </div>
-  </div>
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module" src="pages/dashboard.js"></script>
-<script type="module" src="main.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="pages/dashboard.js"></script>
+    <script type="module" src="main.js"></script>
+  </body>
 </html>

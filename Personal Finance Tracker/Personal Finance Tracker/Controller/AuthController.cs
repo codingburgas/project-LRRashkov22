@@ -20,7 +20,6 @@ public class AuthController(IAuthService AuthService) : ControllerBase {
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register(UserDto request) {
         var (user,error) = await AuthService.RegisterAsync(request);
-        //return a BadRequest with the error message
         if (error != null) return BadRequest(error);
 
         return Ok(user);

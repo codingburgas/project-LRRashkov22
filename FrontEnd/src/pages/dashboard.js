@@ -1,11 +1,18 @@
 import { getUsername, getToken } from "../utils/auth.js";
 import { getDashboardData } from "../api/dashboardApi.js";
-import { getTransactions, getRecentTransactions } from "../api/transactionApi.js";
-import { getCategories, getSetupStatus, setupCategories } from "../api/categoryApi.js";
+import {
+  getTransactions,
+  getRecentTransactions,
+} from "../api/transactionApi.js";
+import {
+  getCategories,
+  getSetupStatus,
+  setupCategories,
+} from "../api/categoryApi.js";
 import { getChartData } from "../api/dashboardApi.js";
 import { getAccounts } from "../api/accountApi.js";
-import {showModalError} from "../main.js";
-import {clearModalError} from "../main.js";
+import { showModalError } from "../main.js";
+import { clearModalError } from "../main.js";
 import { isDemoUser } from "../utils/auth.js";
 
 let isIncome = true;
@@ -15,255 +22,258 @@ let currentMode = "daily";
 let currentModal = null;
 let isSetupMode = false;
 window.changeRange = function (days) {
-    currentDays = days;
-    loadChart();
+  currentDays = days;
+  loadChart();
 };
 window.setMode = function (mode, days) {
-    currentMode = mode;
-    currentDays = days;
-    loadChart();
+  currentMode = mode;
+  currentDays = days;
+  loadChart();
 };
 function getCurrentMonthYear() {
-    const now = new Date();
-    return {
-        month: now.getMonth() + 1,
-        year: now.getFullYear()
-    };
+  const now = new Date();
+  return {
+    month: now.getMonth() + 1,
+    year: now.getFullYear(),
+  };
 }
 window.openDeposit = function () {
-    clearModalError("transaction");
-    isIncome = true;
-    currentModal = "transaction";
-    loadCategories();
-    loadAccounts();
-    document.getElementById("transaction-title").innerText = "Deposit";
-    const isDemo = isDemoUser();
-    document.querySelectorAll("#transactionModal input, #transactionModal select")
-    .forEach(el => {
-    if (el.type !== "button") {
+  clearModalError("transaction");
+  isIncome = true;
+  currentModal = "transaction";
+  loadCategories();
+  loadAccounts();
+  document.getElementById("transaction-title").innerText = "Deposit";
+  const isDemo = isDemoUser();
+  document
+    .querySelectorAll("#transactionModal input, #transactionModal select")
+    .forEach((el) => {
+      if (el.type !== "button") {
         el.disabled = isDemo;
-    }
-});
-    new bootstrap.Modal(document.getElementById('transactionModal')).show();
+      }
+    });
+  new bootstrap.Modal(document.getElementById("transactionModal")).show();
 };
 
 window.openWithdraw = function () {
-    clearModalError("transaction");
-    isIncome = false;
-    currentModal = "transaction";
-    loadCategories();
-    loadAccounts();
-    document.getElementById("transaction-title").innerText = "Withdraw";
-    const isDemo = isDemoUser();
-    document.querySelectorAll("#transactionModal input, #transactionModal select")
-    .forEach(el => {
-    if (el.type !== "button") {
+  clearModalError("transaction");
+  isIncome = false;
+  currentModal = "transaction";
+  loadCategories();
+  loadAccounts();
+  document.getElementById("transaction-title").innerText = "Withdraw";
+  const isDemo = isDemoUser();
+  document
+    .querySelectorAll("#transactionModal input, #transactionModal select")
+    .forEach((el) => {
+      if (el.type !== "button") {
         el.disabled = isDemo;
-    }
-});
-    new bootstrap.Modal(document.getElementById('transactionModal')).show();
+      }
+    });
+  new bootstrap.Modal(document.getElementById("transactionModal")).show();
 };
 window.openSetBudgets = function () {
-    clearModalError("budget");
-    currentModal = "budget";
-    loadCategories();
-    document.getElementById("budget-title").innerText = "Set Budget";
-    const isDemo = isDemoUser();
-    document.querySelectorAll("#BudgetModal input, #BudgetModal select")
-    .forEach(el => {
-    if (el.type !== "button") {
+  clearModalError("budget");
+  currentModal = "budget";
+  loadCategories();
+  document.getElementById("budget-title").innerText = "Set Budget";
+  const isDemo = isDemoUser();
+  document
+    .querySelectorAll("#BudgetModal input, #BudgetModal select")
+    .forEach((el) => {
+      if (el.type !== "button") {
         el.disabled = isDemo;
-    }
-});
-    new bootstrap.Modal(document.getElementById('BudgetModal')).show();
+      }
+    });
+  new bootstrap.Modal(document.getElementById("BudgetModal")).show();
 };
 async function loadCategories() {
-    const token = getToken();
-    // const res = await getCategories(token);
-    const { month, year } = getCurrentMonthYear();
+  const token = getToken();
+  const { month, year } = getCurrentMonthYear();
 
-    const res = await fetch(
+  const res = await fetch(
     `https://api-lecho.vanix.shop/api/categories/with-budgets?month=${month}&year=${year}`,
     {
-        headers: {
-        Authorization: "Bearer " + token
-        }
-    }
-    );  
-    if (!res.ok) {
-        console.error(await res.text());
-        return;
-    }
-    const data = await res.json();
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    },
+  );
+  if (!res.ok) {
+    console.error(await res.text());
+    return;
+  }
+  const data = await res.json();
 
-      let selectId;
+  let selectId;
 
-    if (currentModal === "transaction") {
-        selectId = "category";
-    } else if (currentModal === "budget") {
-        selectId = "budgetLimit-category";
-    } else {
-        return;
-    }
+  if (currentModal === "transaction") {
+    selectId = "category";
+  } else if (currentModal === "budget") {
+    selectId = "budgetLimit-category";
+  } else {
+    return;
+  }
 
-    const select = document.getElementById(selectId);
-    select.innerHTML = "";
-    const filtered = currentModal === "budget"
-    ? data
-    :  data.filter(c => c.isIncome === isIncome);
-    filtered.forEach(c => {
-        const option = document.createElement("option");
-          option.value = c.id;
-          option.text = c.name;
-        select.appendChild(option);
-    });
+  const select = document.getElementById(selectId);
+  select.innerHTML = "";
+  const filtered =
+    currentModal === "budget"
+      ? data
+      : data.filter((c) => c.isIncome === isIncome);
+  filtered.forEach((c) => {
+    const option = document.createElement("option");
+    option.value = c.id;
+    option.text = c.name;
+    select.appendChild(option);
+  });
 
-    populateCategoryFilterMenu(data);
+  populateCategoryFilterMenu(data);
 }
 
 async function loadAccounts() {
-    const token = getToken();
-    const res = await getAccounts(token);
+  const token = getToken();
+  const res = await getAccounts(token);
 
-    if (!res.ok) return;
+  if (!res.ok) return;
 
-    const data = await res.json();
+  const data = await res.json();
 
-    const select = document.getElementById("account");
-    if (!select) return;
+  const select = document.getElementById("account");
+  if (!select) return;
 
-    select.innerHTML = "";
+  select.innerHTML = "";
 
-    data.forEach(a => {
-        const option = document.createElement("option");
-         option.value = a.id;
-         option.text = a.name;
-        select.appendChild(option);
-    });
+  data.forEach((a) => {
+    const option = document.createElement("option");
+    option.value = a.id;
+    option.text = a.name;
+    select.appendChild(option);
+  });
 }
 
 function populateCategoryFilterMenu(categories) {
-    const submenu = document.getElementById("categoryFilterSubmenu");
-    if (!submenu) return;
+  const submenu = document.getElementById("categoryFilterSubmenu");
+  if (!submenu) return;
 
-    submenu.innerHTML = "";
-    const allCategoriesItem = document.createElement("li");
-    allCategoriesItem.innerHTML = `
+  submenu.innerHTML = "";
+  const allCategoriesItem = document.createElement("li");
+  allCategoriesItem.innerHTML = `
         <button class="dropdown-item" type="button" onclick="filterTransactionsByCategory(null)">All categories</button>
     `;
-    submenu.appendChild(allCategoriesItem);
+  submenu.appendChild(allCategoriesItem);
 
-    categories.forEach(category => {
-        const li = document.createElement("li");
-        li.innerHTML = `
+  categories.forEach((category) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
             <button class="dropdown-item" type="button" onclick="filterTransactionsByCategory(${category.id})">${category.name}</button>
         `;
-        submenu.appendChild(li);
-    });
+    submenu.appendChild(li);
+  });
 }
 
 window.filterTransactionsByCategory = function (categoryId) {
-    loadTable(categoryId);
+  loadTable(categoryId);
 };
 
-document.addEventListener("DOMContentLoaded", async () => {   
-
-
+document.addEventListener("DOMContentLoaded", async () => {
   await checkSetup();
-    loadUser();
-    loadDashboard();
-    loadRecent();
-    loadTable();
-    loadCategories();
-    loadChart(); 
+  loadUser();
+  loadDashboard();
+  loadRecent();
+  loadTable();
+  loadCategories();
+  loadChart();
 });
 window.submitTransaction = async function () {
-    const token = getToken();
-    if (isDemoUser()) {
-        showModalError("Demo account is read-only", "transaction");
-        return;
-    }
-    const amount = parseFloat(document.getElementById("amount").value);
-    const description = document.getElementById("description").value;
-    const categoryId = parseInt(document.getElementById("category").value);
-    const dateValue = document.getElementById("date").value;
-    const accountId = parseInt(document.getElementById("account").value);
-    
-    if (!accountId || !amount || !categoryId || !dateValue) {
-        showModalError("Fill all fields", "transaction");
-        return;
-    }
+  const token = getToken();
+  if (isDemoUser()) {
+    showModalError("Demo account is read-only", "transaction");
+    return;
+  }
+  const amount = parseFloat(document.getElementById("amount").value);
+  const description = document.getElementById("description").value;
+  const categoryId = parseInt(document.getElementById("category").value);
+  const dateValue = document.getElementById("date").value;
+  const accountId = parseInt(document.getElementById("account").value);
 
-    const date = new Date(dateValue + "T00:00:00").toISOString();
+  if (!accountId || !amount || !categoryId || !dateValue) {
+    showModalError("Fill all fields", "transaction");
+    return;
+  }
 
-    const res = await fetch("https://api-lecho.vanix.shop/api/transaction", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token
-        },
-        body: JSON.stringify({
-            amount,
-            description,
-            categoryId,
-            accountId,
-            isIncome,
-            transactionDate: date
-        })
-    });
+  const date = new Date(dateValue + "T00:00:00").toISOString();
 
-    if (!res.ok) {
-        showModalError("Error creating transaction", "transaction");
-        return;
-    }
+  const res = await fetch("https://api-lecho.vanix.shop/api/transaction", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    body: JSON.stringify({
+      amount,
+      description,
+      categoryId,
+      accountId,
+      isIncome,
+      transactionDate: date,
+    }),
+  });
 
-    loadDashboard();
-    loadRecent();
-    loadTable();
-    loadCategories();
-    loadChart();
-    bootstrap.Modal.getInstance(document.getElementById('transactionModal')).hide();
+  if (!res.ok) {
+    showModalError("Error creating transaction", "transaction");
+    return;
+  }
+
+  loadDashboard();
+  loadRecent();
+  loadTable();
+  loadCategories();
+  loadChart();
+  bootstrap.Modal.getInstance(
+    document.getElementById("transactionModal"),
+  ).hide();
 };
 // ---------- USER ----------
 function loadUser() {
-    const username = getUsername();
-    const el = document.getElementById("welcome-message");
+  const username = getUsername();
+  const el = document.getElementById("welcome-message");
 
-    if (el && username) {
-        el.innerText = `Welcome back, ${username}!`;
-    }
+  if (el && username) {
+    el.innerText = `Welcome back, ${username}!`;
+  }
 }
 
 // ---------- DASHBOARD ----------
 async function loadDashboard() {
-    const token = getToken();
-    const res = await getDashboardData(token);
+  const token = getToken();
+  const res = await getDashboardData(token);
 
-    if (!res.ok) return;
+  if (!res.ok) return;
 
-    const data = await res.json();
+  const data = await res.json();
 
-    document.getElementById("balance").innerText = data.balance.toFixed(2);
-    document.getElementById("income").innerText = data.totalIncome.toFixed(2);
-    document.getElementById("expenses").innerText = data.totalExpenses.toFixed(2);
+  document.getElementById("balance").innerText = data.balance.toFixed(2);
+  document.getElementById("income").innerText = data.totalIncome.toFixed(2);
+  document.getElementById("expenses").innerText = data.totalExpenses.toFixed(2);
 }
 
 // ---------- RECENT ----------
 async function loadRecent() {
-    const token = getToken();
-    const res = await getRecentTransactions(token);
+  const token = getToken();
+  const res = await getRecentTransactions(token);
 
-    if (!res.ok) return;
+  if (!res.ok) return;
 
-    const data = await res.json();
+  const data = await res.json();
 
-    const container = document.getElementById("recent-list");
-    container.innerHTML = "";
+  const container = document.getElementById("recent-list");
+  container.innerHTML = "";
 
-    data.forEach(t => {
-        const div = document.createElement("div");
+  data.forEach((t) => {
+    const div = document.createElement("div");
 
-div.innerHTML = ` 
+    div.innerHTML = ` 
 <div class="d-flex justify-content-between align-items-start">
     
     <!-- LEFT -->
@@ -288,32 +298,36 @@ div.innerHTML = `
 <hr class="my-2">
 `;
 
-        container.appendChild(div);
-    });
+    container.appendChild(div);
+  });
 }
 
 // ---------- TABLE ----------
 async function loadTable(categoryId) {
-    const token = getToken();
-    const res = await getTransactions(token);
+  const token = getToken();
+  const res = await getTransactions(token);
 
-    if (!res.ok) return;
+  if (!res.ok) return;
 
-    const data = await res.json();
+  const data = await res.json();
 
-    const tbody = document.getElementById("transactions-table");
-    tbody.innerHTML = "";
+  const tbody = document.getElementById("transactions-table");
+  tbody.innerHTML = "";
 
-    const header = document.querySelector('h6');
-    const isTransactionPage = header && header.textContent === 'Transactions';
+  const header = document.querySelector("h6");
+  const isTransactionPage = header && header.textContent === "Transactions";
 
-    const transactions = isTransactionPage ? data : data.filter(t => !t.isIncome);
-    const filteredTransactions = categoryId ? transactions.filter(t => t.categoryId === categoryId) : transactions;
+  const transactions = isTransactionPage
+    ? data
+    : data.filter((t) => !t.isIncome);
+  const filteredTransactions = categoryId
+    ? transactions.filter((t) => t.categoryId === categoryId)
+    : transactions;
 
-    filteredTransactions.forEach(t => {
-        const tr = document.createElement("tr");
-            
-        tr.innerHTML = `
+  filteredTransactions.forEach((t) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
             <td>${new Date(t.transactionDate).toLocaleDateString()}</td>
             <td>${t.categoryName}</td>
             <td class="${isTransactionPage ? (t.isIncome ? "text-success" : "text-danger") : "text-danger"}">
@@ -322,148 +336,142 @@ async function loadTable(categoryId) {
             <td>${t.description}</td>
         `;
 
-        tbody.insertBefore(tr, tbody.firstChild);
-    });
+    tbody.insertBefore(tr, tbody.firstChild);
+  });
 }
-
 
 async function loadChart() {
-    const token = getToken();
-    const res = await getChartData(token, currentDays, currentMode);
+  const token = getToken();
+  const res = await getChartData(token, currentDays, currentMode);
 
-    if (!res.ok) {
-        console.error("Chart failed");
-        return;
-    }
+  if (!res.ok) {
+    console.error("Chart failed");
+    return;
+  }
 
-    const data = await res.json();
+  const data = await res.json();
 
-    const labels = data.map(x => x.label);
-    const income = data.map(x => x.income);
-    const expenses = data.map(x => x.expense);
-    const balance = data.map(x => x.balance);
+  const labels = data.map((x) => x.label);
+  const income = data.map((x) => x.income);
+  const expenses = data.map((x) => x.expense);
+  const balance = data.map((x) => x.balance);
 
-    const ctx = document.getElementById("financeChart");
+  const ctx = document.getElementById("financeChart");
 
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
 
-    if (chartInstance) {
-        chartInstance.destroy();
-    }
-
-    chartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "Income",
-                    data: income,
-                    borderWidth: 2,
-                    tension: 0.3,
-                    borderColor: "#0d6dfd63",
-                    pointRadius: 0,
-                   
-                },
-                {
-                    label: "Expenses",
-                    data: expenses,
-                    borderWidth: 2,
-                    tension: 0.3,
-                    borderColor: "#dc354663",
-                    pointRadius: 0,
-                },
-                {
-                    label: "Balance",
-                    data: balance,
-                    borderWidth: 3,
-                    tension: 0.3,
-                    fill: true,
-
-                   backgroundColor: "#28a74614",
-                    borderColor: "#28a745",
-                   pointRadius: 0,
-                }
-            ]
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Income",
+          data: income,
+          borderWidth: 2,
+          tension: 0.3,
+          borderColor: "#0d6dfd63",
+          pointRadius: 0,
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
-        }
-    });
-}
+        {
+          label: "Expenses",
+          data: expenses,
+          borderWidth: 2,
+          tension: 0.3,
+          borderColor: "#dc354663",
+          pointRadius: 0,
+        },
+        {
+          label: "Balance",
+          data: balance,
+          borderWidth: 3,
+          tension: 0.3,
+          fill: true,
 
+          backgroundColor: "#28a74614",
+          borderColor: "#28a745",
+          pointRadius: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+    },
+  });
+}
 
 import { PutBudgetLimit } from "../api/dashboardApi.js";
 window.submitBudgetLimit = async function () {
-    const token = getToken();
-        if (isDemoUser()) {
-            showModalError("Demo account is read-only", "budget");
-            return;
-        }
-    const amount = parseFloat(document.getElementById("limit-amount").value);
-    const categoryId = parseInt(document.getElementById("budgetLimit-category").value);
-    
-    if (!amount || !categoryId) {
-        showModalError("Fill all fields", "budget");
-        return;
-    }
+  const token = getToken();
+  if (isDemoUser()) {
+    showModalError("Demo account is read-only", "budget");
+    return;
+  }
+  const amount = parseFloat(document.getElementById("limit-amount").value);
+  const categoryId = parseInt(
+    document.getElementById("budgetLimit-category").value,
+  );
 
-    const res = await PutBudgetLimit(token, { amount, categoryId });
+  if (!amount || !categoryId) {
+    showModalError("Fill all fields", "budget");
+    return;
+  }
 
-    if (!res.ok) {
-        showModalError("Error creating budget", "budget");
-        return;
-    }
+  const res = await PutBudgetLimit(token, { amount, categoryId });
 
-    loadDashboard();
-    loadRecent();
-    loadTable();
-    loadCategories();
-    loadChart();
-    bootstrap.Modal.getInstance(document.getElementById('BudgetModal')).hide();
+  if (!res.ok) {
+    showModalError("Error creating budget", "budget");
+    return;
+  }
+
+  loadDashboard();
+  loadRecent();
+  loadTable();
+  loadCategories();
+  loadChart();
+  bootstrap.Modal.getInstance(document.getElementById("BudgetModal")).hide();
 };
-
 
 // ---------- SETUP ----------
 async function checkSetup() {
-    const token = getToken();
-    const isDemo = isDemoUser();
-    // document.querySelectorAll("#SetupModal input, #SetupModal select")
-    // .forEach(el => {
-    //     if (el.type !== "button") {
-    //         el.disabled = isDemo;
-    //     }
-    // });
-    const res = await getSetupStatus(token);
-    if (!res.ok) return;
-    const isDone = await res.json();
-    if (!isDone) {
-        isSetupMode = true;
-        await loadDefaultCategoriesForSetup();
-        document.getElementById("setup-account-section").style.display = "block";
-        const modal = new bootstrap.Modal(document.getElementById('SetupModal'));
-        modal.show();
-    };
+  const token = getToken();
+  const isDemo = isDemoUser();
+  const res = await getSetupStatus(token);
+  if (!res.ok) return;
+  const isDone = await res.json();
+  if (!isDone) {
+    isSetupMode = true;
+    await loadDefaultCategoriesForSetup();
+    document.getElementById("setup-account-section").style.display = "block";
+    const modal = new bootstrap.Modal(document.getElementById("SetupModal"));
+    modal.show();
+  }
 }
 
 async function loadDefaultCategoriesForSetup() {
-    const token = getToken();
-    const res = await fetch("https://api-lecho.vanix.shop/api/categories/defaults", {
-    headers: {
-        Authorization: "Bearer " + token
-    }
-});
-    if (!res.ok) return;
-    const data = await res.json();
-    const container = document.getElementById("setup-categories");
-    container.innerHTML = "";
-    const defaults = data;
-    defaults.forEach(c => {
+  const token = getToken();
+  const res = await fetch(
+    "https://api-lecho.vanix.shop/api/categories/defaults",
+    {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    },
+  );
+  if (!res.ok) return;
+  const data = await res.json();
+  const container = document.getElementById("setup-categories");
+  container.innerHTML = "";
+  const defaults = data;
+  defaults.forEach((c) => {
     const div = document.createElement("div");
     div.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -475,82 +483,89 @@ async function loadDefaultCategoriesForSetup() {
             </div>
         `;
 
-        container.appendChild(div);
-    });
+    container.appendChild(div);
+  });
 }
 
 window.submitSetup = async function () {
-    const token = getToken();
-    if (isDemoUser()) {
-    showModalError("Demo account is read-only. Create one to use full app", "setup");
+  const token = getToken();
+  if (isDemoUser()) {
+    showModalError(
+      "Demo account is read-only. Create one to use full app",
+      "setup",
+    );
     return;
-        }
-    const selected = [];
-    const custom = [];
-    document.querySelectorAll("#setup-categories input[type=checkbox]").forEach(cb => {
-        if (cb.checked) selected.push(parseInt(cb.value));
+  }
+  const selected = [];
+  const custom = [];
+  document
+    .querySelectorAll("#setup-categories input[type=checkbox]")
+    .forEach((cb) => {
+      if (cb.checked) selected.push(parseInt(cb.value));
     });
-    const accountName = document.getElementById("setup-account-name").value;
-    const accountType = parseInt(document.getElementById("setup-account-type").value);
-if (isSetupMode) {
+  const accountName = document.getElementById("setup-account-name").value;
+  const accountType = parseInt(
+    document.getElementById("setup-account-type").value,
+  );
+  if (isSetupMode) {
     if (!accountName || accountName.trim() === "") {
-        showModalError("Account name is required", "setup");
-        return;
+      showModalError("Account name is required", "setup");
+      return;
     }
 
     if (isNaN(accountType)) {
-        showModalError("Account type is required", "setup");
-        return;
+      showModalError("Account type is required", "setup");
+      return;
     }
-}
-    if (isSetupMode) {
+  }
+  if (isSetupMode) {
     await fetch("https://api-lecho.vanix.shop/api/account", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token
-        },
-        body: JSON.stringify({
-            name: accountName,
-            accountType: accountType
-        })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({
+        name: accountName,
+        accountType: accountType,
+      }),
     });
-}
+  }
 
-    document.querySelectorAll(".custom-category").forEach(row => {
-        const name = row.querySelector(".name").value;
-        const amount = parseFloat(row.querySelector(".amount").value);
-        const isIncome = row.querySelector(".type").value === "income";
-        if (name) {
-            custom.push({
-                name,
-                budgetLimit: amount || 0,
-                isIncome
-            });
-        }
-    });
-
-    const res = await setupCategories(token, {
-        defaultCategoryIds: selected,
-        customCategories: custom
-    });
-
-    if (!res.ok) {
-        showModalError("Setup failed", "setup");
-        return;
+  document.querySelectorAll(".custom-category").forEach((row) => {
+    const name = row.querySelector(".name").value;
+    const amount = parseFloat(row.querySelector(".amount").value);
+    const isIncome = row.querySelector(".type").value === "income";
+    if (name) {
+      custom.push({
+        name,
+        budgetLimit: amount || 0,
+        isIncome,
+      });
     }
-    bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
-    loadCategories();
-    loadDashboard();
-    loadChart();
-    sessionStorage.removeItem("setupShown");
+  });
+
+  const res = await setupCategories(token, {
+    defaultCategoryIds: selected,
+    customCategories: custom,
+  });
+
+  if (!res.ok) {
+    showModalError("Setup failed", "setup");
+    return;
+  }
+  bootstrap.Modal.getInstance(document.getElementById("SetupModal")).hide();
+  loadCategories();
+  loadDashboard();
+  loadChart();
+  sessionStorage.removeItem("setupShown");
 };
 
 window.addCustomCategory = function () {
-    const container = document.getElementById("custom-categories");
-    const div = document.createElement("div");
-    div.classList.add("custom-category", "mb-2");
-    div.innerHTML = `
+  const container = document.getElementById("custom-categories");
+  const div = document.createElement("div");
+  div.classList.add("custom-category", "mb-2");
+  div.innerHTML = `
         <input class="form-control mb-1 name" placeholder="Name" />
         <input type="number" class="form-control mb-1 amount" placeholder="Budget" />
         <select class="form-control type">
@@ -559,194 +574,207 @@ window.addCustomCategory = function () {
         </select>
     `;
 
-    container.appendChild(div);
+  container.appendChild(div);
 };
 
 window.handleSave = function () {
-     console.log("CLICKED SAVE");
-    if (isSetupMode) {
-        submitSetup();
-    } else {
-        saveCategoryChanges();
-    }
+  console.log("CLICKED SAVE");
+  if (isSetupMode) {
+    submitSetup();
+  } else {
+    saveCategoryChanges();
+  }
 };
 
 window.openCategoryManager = async function () {
-    clearModalError("setup");
+  clearModalError("setup");
 
-    isSetupMode = false;
-    document.getElementById("setup-account-section").style.display = "none";
-    document.getElementById("custom-categories").innerHTML = "";
-    await renderCategoryManager(); 
+  isSetupMode = false;
+  document.getElementById("setup-account-section").style.display = "none";
+  document.getElementById("custom-categories").innerHTML = "";
+  await renderCategoryManager();
 
-    new bootstrap.Modal(document.getElementById('SetupModal')).show();
+  new bootstrap.Modal(document.getElementById("SetupModal")).show();
 };
 
 window.saveCategoryChanges = async function () {
-    const token = getToken();
-if (isDemoUser()) {
-    showModalError("Demo account is read-only. Create one to use full app", "setup");
+  const token = getToken();
+  if (isDemoUser()) {
+    showModalError(
+      "Demo account is read-only. Create one to use full app",
+      "setup",
+    );
     return;
-}
-    const rows = document.querySelectorAll("#setup-categories > div, #custom-categories > div");
+  }
+  const rows = document.querySelectorAll(
+    "#setup-categories > div, #custom-categories > div",
+  );
 
-    for (const row of rows) {
-        const nameInput = row.querySelector(".name");
-        const typeInput = row.querySelector(".type");
-        const amountInput = row.querySelector(".amount");
+  for (const row of rows) {
+    const nameInput = row.querySelector(".name");
+    const typeInput = row.querySelector(".type");
+    const amountInput = row.querySelector(".amount");
 
-        const id = nameInput.dataset.id;
-        if (!id) {
-    const name = nameInput.value;
-    const amount = parseFloat(amountInput.value) || 0;
-    const isIncome = typeInput.value === "income";
+    const id = nameInput.dataset.id;
+    if (!id) {
+      const name = nameInput.value;
+      const amount = parseFloat(amountInput.value) || 0;
+      const isIncome = typeInput.value === "income";
 
-    if (!name) continue;
+      if (!name) continue;
 
-    // CREATE CATEGORY
-    const resCreate = await fetch("https://api-lecho.vanix.shop/api/categories", {
-        method: "POST",
-        headers: {
+      const resCreate = await fetch(
+        "https://api-lecho.vanix.shop/api/categories",
+        {
+          method: "POST",
+          headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + token
-        },
-        body: JSON.stringify({
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
             name: name,
             isIncome: isIncome,
-            budgetLimit: amount
-        })
-    });
+            budgetLimit: amount,
+          }),
+        },
+      );
 
-    if (!resCreate.ok) {
+      if (!resCreate.ok) {
         const err = await resCreate.text();
         console.error("CREATE ERROR:", err);
         continue;
-    }
+      }
 
-    const created = await resCreate.json();
+      const created = await resCreate.json();
 
-    // CREATE BUDGET
-    const { month, year } = getCurrentMonthYear();
 
-    await fetch("https://api-lecho.vanix.shop/api/Dashboard/budget", {
+      const { month, year } = getCurrentMonthYear();
+
+      await fetch("https://api-lecho.vanix.shop/api/Dashboard/budget", {
         method: "PUT",
         headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
         },
         body: JSON.stringify({
-            categoryId: created.id,
-            amount: amount,
-            month,
-            year
-        })
-    });
+          categoryId: created.id,
+          amount: amount,
+          month,
+          year,
+        }),
+      });
 
-    continue;
-}
-            if (!id) continue;
-        const { month, year } = getCurrentMonthYear();
-        const payload = {
-            name: nameInput.value,
-            isIncome: typeInput.value === "income",
-            budgetLimit: parseFloat(amountInput.value) || 0
-        };
+      continue;
+    }
+    if (!id) continue;
+    const { month, year } = getCurrentMonthYear();
+    const payload = {
+      name: nameInput.value,
+      isIncome: typeInput.value === "income",
+      budgetLimit: parseFloat(amountInput.value) || 0,
+    };
 
-const res1 = await fetch(`https://api-lecho.vanix.shop/api/categories/${id}`, {
-    method: "PUT",
-    headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
-    },
-    body: JSON.stringify({
-        Id: parseInt(id),
-        Name: payload.name,
-        IsIncome: payload.isIncome,
-        BudgetLimit: 0
-    })
-});
+    const res1 = await fetch(
+      `https://api-lecho.vanix.shop/api/categories/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          Id: parseInt(id),
+          Name: payload.name,
+          IsIncome: payload.isIncome,
+          BudgetLimit: 0,
+        }),
+      },
+    );
 
-if (!res1.ok) {
-    const err = await res1.text();
-    showModalError(err || "Category update failed", "setup");
-    return;
-}
-
-const res2 = await fetch(`https://api-lecho.vanix.shop/api/Dashboard/budget`, {
-    method: "PUT",
-    headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
-    },
-    body: JSON.stringify({
-        categoryId: parseInt(id),
-        amount: payload.budgetLimit,
-        month: month,
-        year: year
-    })
-});
-
-if (!res2.ok) {
-    const err = await res2.text();
-    showModalError(err || "Budget update failed", "setup");
-    return;
-}
+    if (!res1.ok) {
+      const err = await res1.text();
+      showModalError(err || "Category update failed", "setup");
+      return;
     }
 
-    bootstrap.Modal.getInstance(document.getElementById('SetupModal')).hide();
+    const res2 = await fetch(
+      `https://api-lecho.vanix.shop/api/Dashboard/budget`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          categoryId: parseInt(id),
+          amount: payload.budgetLimit,
+          month: month,
+          year: year,
+        }),
+      },
+    );
 
-    await renderCategoryManager();
-    loadDashboard();
-    loadChart();
+    if (!res2.ok) {
+      const err = await res2.text();
+      showModalError(err || "Budget update failed", "setup");
+      return;
+    }
+  }
+
+  bootstrap.Modal.getInstance(document.getElementById("SetupModal")).hide();
+
+  await renderCategoryManager();
+  loadDashboard();
+  loadChart();
 };
 
 window.deleteCategory = async function (id) {
-    const token = getToken();
-        if (isDemoUser()) {
-        showModalError("Demo account is read-only", "setup");
-        return;
-         }
-    const res = await fetch(`https://api-lecho.vanix.shop/api/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: "Bearer " + token
-        }
-    });
-        if (!res.ok) {
-            const err = await res.text();
-            showModalError(err || "Delete failed", "setup");
-            return;
-        }
-    document.querySelector(`[data-id="${id}"]`)?.closest("div").remove();
+  const token = getToken();
+  if (isDemoUser()) {
+    showModalError("Demo account is read-only", "setup");
+    return;
+  }
+  const res = await fetch(`https://api-lecho.vanix.shop/api/categories/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    showModalError(err || "Delete failed", "setup");
+    return;
+  }
+  document.querySelector(`[data-id="${id}"]`)?.closest("div").remove();
 };
 
 async function renderCategoryManager() {
-    const token = getToken();
-    const isDemo = isDemoUser();
+  const token = getToken();
+  const isDemo = isDemoUser();
 
-    const { month, year } = getCurrentMonthYear();
+  const { month, year } = getCurrentMonthYear();
 
-    const res = await fetch(
-        `https://api-lecho.vanix.shop/api/categories/with-budgets?month=${month}&year=${year}`,
-        {
-            headers: { Authorization: "Bearer " + token }
-        }
-    );
+  const res = await fetch(
+    `https://api-lecho.vanix.shop/api/categories/with-budgets?month=${month}&year=${year}`,
+    {
+      headers: { Authorization: "Bearer " + token },
+    },
+  );
 
-    if (!res.ok) return;
+  if (!res.ok) return;
 
-    const data = await res.json();
-    if (!Array.isArray(data)) {
-        console.error("Expected array, got:", data);
-        return;
-    }
-    const container = document.getElementById("setup-categories");
-    container.innerHTML = "";
+  const data = await res.json();
+  if (!Array.isArray(data)) {
+    console.error("Expected array, got:", data);
+    return;
+  }
+  const container = document.getElementById("setup-categories");
+  container.innerHTML = "";
 
-    data.forEach(c => {
-        const div = document.createElement("div");
+  data.forEach((c) => {
+    const div = document.createElement("div");
 
-        div.innerHTML = `
+    div.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <input type="text" class="form-control w-25 name" value="${c.name}" data-id="${c.id}" />
                 
@@ -761,17 +789,20 @@ async function renderCategoryManager() {
             </div>
         `;
 
-        container.appendChild(div);
-    });
-      if (isDemo) {
-        document.querySelectorAll("#SetupModal input, #SetupModal select")
-            .forEach(el => {
-                if (el.type !== "button") {
-                    el.disabled = true;
-                }
-            });
+    container.appendChild(div);
+  });
+  if (isDemo) {
+    document
+      .querySelectorAll("#SetupModal input, #SetupModal select")
+      .forEach((el) => {
+        if (el.type !== "button") {
+          el.disabled = true;
+        }
+      });
 
-        const addBtn = document.querySelector("button[onclick='addCustomCategory()']");
-        if (addBtn) addBtn.disabled = true;
-    }
+    const addBtn = document.querySelector(
+      "button[onclick='addCustomCategory()']",
+    );
+    if (addBtn) addBtn.disabled = true;
+  }
 }
